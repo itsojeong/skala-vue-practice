@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+
+# 의존성 / 빌드 산출물 (각 프로젝트 폴더에도 개별 .gitignore 가 있다)
+node_modules
+dist
+
+# 환경변수 — API 키가 들어가므로 절대 커밋하지 않는다
+*.local
