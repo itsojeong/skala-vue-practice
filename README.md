@@ -1,6 +1,7 @@
 # skala-vue-practice
 
-vue.js 수업을 통해 진행한 code challenge를 작성합니다.
+vue.js 수업을 통해 진행한 Code Challenge와 Hands-on 과제를 순서대로 따라하면서 실제로 겪은 에러와 해결 과정, 그리고 배운 점을 기록했습니다.
+
 
 ## 제출 정보
 
@@ -8,12 +9,10 @@ vue.js 수업을 통해 진행한 code challenge를 작성합니다.
 | --- | --- |
 | GitHub 저장소 | https://github.com/itsojeong/skala-vue-practice |
 | 배포 주소 (Vercel) | https://skala-vue-practice-kappa.vercel.app |
-| 과제 4~7 문서 | [vue-practice/vue-weather-dashboard/README.md](vue-practice/vue-weather-dashboard/README.md) |
 | 과제 1~3 문서 | [vue-practice/vue-weather-basic/README.md](vue-practice/vue-weather-basic/README.md) |
+| 과제 4~7 문서 | [vue-practice/vue-weather-dashboard/README.md](vue-practice/vue-weather-dashboard/README.md) |
 
-트러블슈팅 기록은 과제 4~7 문서의 **11절**에 있습니다.
-
-## 프로젝트 구성
+## 개발 환경 구축과 프로젝트 생성
 
 Hands on 과제를 **Vue Router 적용 시점**을 기준으로 두 프로젝트로 나눴습니다.
 과제 4에서 화면 전환 방식 자체가 탭에서 라우터로 바뀌기 때문에, 한 프로젝트에 두면 이전 방식이 사라져 비교가 불가능해집니다.
