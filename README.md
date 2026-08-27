@@ -7,7 +7,7 @@ vue.js 수업을 통해 진행한 code challenge를 작성합니다.
 | 항목 | 주소 |
 | --- | --- |
 | GitHub 저장소 | https://github.com/itsojeong/skala-vue-practice |
-| 배포 주소 (Vercel) | `배포 후 여기에 기입` |
+| 배포 주소 (Vercel) | https://skala-vue-practice-kappa.vercel.app |
 | 과제 4~7 문서 | [vue-practice/vue-weather-dashboard/README.md](vue-practice/vue-weather-dashboard/README.md) |
 | 과제 1~3 문서 | [vue-practice/vue-weather-basic/README.md](vue-practice/vue-weather-basic/README.md) |
 

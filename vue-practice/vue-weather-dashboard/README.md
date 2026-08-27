@@ -8,7 +8,7 @@ Vue Router를 적용해 **한 화면짜리 앱을 여러 페이지를 가진 앱
 | 항목 | 주소 |
 | --- | --- |
 | GitHub 저장소 | https://github.com/itsojeong/skala-vue-practice |
-| 배포 주소 (Vercel) | `배포 후 여기에 기입` |
+| 배포 주소 (Vercel) | https://skala-vue-practice-kappa.vercel.app |
 | 이 문서 | `vue-practice/vue-weather-dashboard/README.md` |
 | 과제 1~3 문서 | [`../vue-weather-basic/README.md`](../vue-weather-basic/README.md) |
 
@@ -722,6 +722,7 @@ Vercel 은 기본적으로 저장소 루트에서 `package.json` 을 찾습니�
 | --- | --- |
 | 첫 화면 | 실제 기온이 표시됨 (환경변수 확인) |
 | `/stats` 로 이동 후 **F5** | 404 가 아니라 통계 화면 (폴백 확인) |
+| 없는 주소 (`/asdf`) | 우리가 만든 404 화면 — 내비게이션 바가 함께 보이면 정상 (11-10 절) |
 | 브라우저 탭 제목 | "날씨 대시보드 — Vue Hands on" |
 | 이후 `git push` | 자동으로 재배포됨 |
 
@@ -823,7 +824,32 @@ Failed to resolve import "./practices/component/ChildComponent.vue/index.js"
 
 **해결** — 없는 경로를 전부 `index.html` 로 돌려주는 SPA 폴백 설정 (9-4 절, [`vercel.json`](vercel.json))
 
-### 11-10. 브라우저 탭 제목이 "Vite App"
+### 11-10. 배포 후 404 — 서버 404 인가, 앱의 404 화면인가
+
+**증상** — 배포한 사이트에서 `/status` 로 들어갔더니 404. 강력 새로고침해도 그대로
+
+**원인** — 경로 오타. 통계 페이지는 `/stats` 이고 `/status` 는 등록된 적이 없음
+
+**핵심** — 이건 **정상 동작**입니다. 서버 응답을 확인하면 구분됩니다.
+
+```text
+/stats             HTTP 200   ← 통계 화면
+/status            HTTP 200   ← 서버는 200, 앱이 404 화면을 그림
+/weather/city_01   HTTP 200
+```
+
+모든 경로가 200 이면 SPA 폴백이 **작동하고 있다는 뜻**입니다. 서버가 `index.html` 을 돌려주고, Vue Router 가 "등록 안 된 경로네" 하고 Catch-all 로 404 화면을 그린 것입니다.
+
+| | 서버의 404 (설정 실패) | 앱의 404 (정상) |
+| --- | --- | --- |
+| HTTP 상태 | 404 | **200** |
+| 화면 | 검은 배경에 `404: NOT_FOUND` | 우리가 만든 404 화면 |
+| 내비게이션 바 | 없음 | **있음** |
+| "돌아가기" 링크 | 없음 | 있음 |
+
+**구분법** — 화면에 내비게이션 바와 "← 메인 대시보드로 돌아가기" 링크가 보이면 우리 앱이 그린 화면입니다.
+
+### 11-11. 브라우저 탭 제목이 "Vite App"
 
 **증상** — 배포 점검 중 발견
 
@@ -831,7 +857,13 @@ Failed to resolve import "./practices/component/ChildComponent.vue/index.js"
 
 **해결** — [`index.html`](index.html) 의 `<title>` 을 실제 제목으로 변경
 
-### 11-11. 커밋했는데 GitHub 에 안 보임
+> 바꾼 뒤에도 "Vite App" 이 보인다면 **제목을 바꾸기 전에 열어둔 옛 탭**일 수 있습니다. 그 탭을 새로고침하면 바뀝니다. 배포본의 실제 제목은 이렇게 확인합니다.
+>
+> ```sh
+> curl -s https://skala-vue-practice-kappa.vercel.app/ | grep title
+> ```
+
+### 11-12. 커밋했는데 GitHub 에 안 보임
 
 **증상** — 커밋을 했는데 저장소 페이지에 파일이 없음
 
@@ -846,7 +878,7 @@ git status -sb
 
 **해결** — `git push origin main`
 
-### 11-12. UI 라이브러리가 기존 디자인을 덮어씀 (예방)
+### 11-13. UI 라이브러리가 기존 디자인을 덮어씀 (예방)
 
 **상황** — Element Plus 를 `main.js` 에 전역 등록하면 대시보드 디자인까지 영향을 받음
 
@@ -857,7 +889,7 @@ UiPracticeView-*.js   365.59 kB   ← 라이브러리가 여기에만
 WeatherHomeView-*.js    4.30 kB   ← 대시보드는 그대로
 ```
 
-### 11-13. 정리할 때 설정 코드까지 지울 뻔함
+### 11-14. 정리할 때 설정 코드까지 지울 뻔함
 
 **상황** — 안 쓰는 파일을 정리하며 `stores/counter.js` 를 삭제. [`main.js`](src/main.js) 의 `app.use(createPinia())` 는 남겨둠
 
