@@ -10,7 +10,7 @@ Hands on 과제를 **Vue Router 적용 시점**을 기준으로 두 프로젝트
 | 프로젝트 | 내용 | 포트 |
 | --- | --- | --- |
 | [vue-practice/vue-weather-basic](vue-practice/vue-weather-basic) | 과제 1~3 + 컴포넌트 문법 연습 (라우터 없음, 탭 전환) | 5174 |
-| [vue-practice/vue-weather-dashboard](vue-practice/vue-weather-dashboard) | 과제 4 Weather Router + 과제 5 Weather Store (Pinia) | 5173 |
+| [vue-practice/vue-weather-dashboard](vue-practice/vue-weather-dashboard) | 과제 4 Router + 5 Store(Pinia) + 6 Axios + 7 Deployment | 5173 |
 
 각 폴더의 `README.md`에 배운 내용과 막혔던 지점이 단계별로 정리되어 있습니다.
 
@@ -32,4 +32,6 @@ SFC 구조 → props/emits → slot(default·named·scoped)
    → 컴포넌트 분리·scoped style
    → Vue Router(지연 로딩·동적 경로·Programmatic Navigation·Catch-all)
    → Pinia Store(state·getters·actions·전역 상태 공유)
+   → Axios(인스턴스·인터셉터·환경변수 키 관리·병렬 요청)
+   → UI 라이브러리(Element Plus) · 빌드와 배포(ESLint·SPA 폴백)
 ```

@@ -1,4 +1,4 @@
-# vue-weather-dashboard — Hands on 과제 4~6: Router · Store · Axios
+# vue-weather-dashboard — Hands on 과제 4~7: Router · Store · Axios · Deployment
 
 Vue Router를 적용해 **한 화면짜리 앱을 여러 페이지를 가진 앱으로 바꾸는** 과제입니다.
 과제 1~3은 [`../vue-weather-basic`](../vue-weather-basic) 프로젝트에 있고, 이 폴더는 그 결과물 위에 라우터만 얹은 별도 프로젝트로 구분했습니다. 
@@ -13,6 +13,7 @@ npm run dev   # http://localhost:5173
 | 5 | Weather Store | `pinia` | 6절 |
 | 6 | Weather Axios | `axios` + OpenWeatherMap | 7절 |
 | — | UI 라이브러리 연습 | `element-plus` | 8절 |
+| 7 | Weather Deployment | ESLint · Vite build | 9절 |
 
 과제 5·6은 과제 4의 결과물을 **이어서 고친 것**이라 같은 프로젝트에 있습니다.
 
@@ -535,7 +536,125 @@ dist/assets/WeatherHomeView-BN7dSzVY.js    4.30 kB   ← 대시보드는 그대�
 
 ---
 
-## 9. 작업하면서 막혔던 것
+## 9. 과제 7: Weather Deployment (품질관리 · 빌드 · 배포)
+
+### 9-1. ESLint 점검
+
+```sh
+npm run lint     # oxlint --fix 후 eslint --fix 를 차례로 실행
+```
+
+두 프로젝트 모두 **0 error / 0 warning** 입니다.
+
+```text
+oxlint  : Found 0 warnings and 0 errors. (21 files, 89 rules)
+eslint  : exit code 0
+```
+
+`npm run lint` 는 `--fix` 가 붙어 있어 **고칠 수 있는 것은 자동으로 고칩니다.** 검사만 하고 싶으면 `npx eslint .` 처럼 직접 부르면 됩니다.
+
+> 종료 코드(exit code)가 중요합니다. 0 이면 통과, 1 이면 에러가 남아 있다는 뜻입니다. CI 는 이 숫자로 성공·실패를 판단합니다.
+
+### 9-2. API 키 관리 (7-1 에서 이미 처리)
+
+| 확인 항목 | 상태 |
+| --- | --- |
+| 키가 소스 코드에 직접 적혀 있는가 | 아니오 — `import.meta.env` 로 읽음 |
+| `.env.local` 이 Git 에 올라갔는가 | 아니오 — `.gitignore` 의 `*.local` |
+| 저장소 이력에 키 문자열이 남았는가 | 아니오 (`git grep` 으로 전체 이력 확인) |
+| 다른 사람이 받아서 쓸 수 있는가 | 예 — `.env.example` 을 복사해 채우면 됨 |
+
+> 주의: Vite 의 `VITE_` 변수는 **빌드 결과물에 그대로 박힙니다.** 브라우저에서 볼 수 있다는 뜻입니다. Git 유출은 막지만 "키가 숨겨진다"는 뜻은 아닙니다. 진짜로 감춰야 하는 키라면 서버를 한 단계 두고 거기서 호출해야 합니다.
+
+### 9-3. 빌드
+
+```sh
+npm run build
+```
+
+`dist/` 폴더에 정적 파일이 생깁니다. 서버 프로그램이 아니라 **HTML·CSS·JS 파일 묶음**입니다.
+
+```text
+dist/
+├── index.html          # 진입점 (내용은 <div id="app"></div> 뿐)
+├── favicon.ico
+└── assets/
+    ├── index-*.js      # 공통 코드
+    ├── index-*.css
+    ├── WeatherHomeView-*.js    # 라우트별로 쪼개진 조각들
+    ├── UiPracticeView-*.js
+    └── …               (총 20개 파일, 956K)
+```
+
+파일명에 붙은 `-CZ0-j8cK` 같은 문자열은 **내용을 요약한 해시**입니다. 내용이 바뀌면 이름도 바뀌므로, 브라우저가 옛날 파일을 캐시에 물고 있는 문제가 생기지 않습니다.
+
+### 9-4. 호스팅 — 그냥 올리면 새로고침이 깨진다
+
+빌드한 `dist/` 를 실제로 두 가지 방식으로 띄워 비교했습니다.
+
+| 주소 | `vite preview` | 일반 정적 서버 |
+| --- | --- | --- |
+| `/` | 200 | 200 |
+| `/stats` | 200 | **404** |
+| `/weather/city_01` | 200 | **404** |
+| `/asdf` | 200 (앱의 404 화면) | **404** |
+
+**왜 이런가:** 우리 앱에는 `stats` 라는 파일이 없습니다. 화면 안에서 링크를 눌러 이동할 때는 JS 가 처리하니 문제가 없지만, 주소창에 직접 치거나 **새로고침**하면 서버에게 "stats 파일 주세요" 라고 묻게 됩니다. 서버에는 그런 파일이 없으니 404 입니다.
+
+**해결:** 없는 경로는 전부 `index.html` 을 돌려주도록 서버에 설정합니다(SPA 폴백). 그러면 Vue Router 가 주소를 보고 알맞은 화면을 그립니다.
+
+```nginx
+# nginx
+location / {
+  try_files $uri $uri/ /index.html;
+}
+```
+
+```text
+# Netlify — public/_redirects 파일
+/*    /index.html   200
+```
+
+```json
+// Vercel — vercel.json
+{ "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }
+```
+
+`vite preview` 는 이 폴백이 이미 들어 있어서 배포 전 확인용으로 쓰기 좋습니다.
+
+```sh
+npm run preview     # http://localhost:4173
+```
+
+### 9-5. 하위 경로에 올릴 때
+
+`example.com/` 이 아니라 `example.com/my-app/` 처럼 **하위 경로**에 올리면, `index.html` 이 `/assets/…` 를 찾다가 전부 404 가 납니다. 이때는 `vite.config.js` 에 기준 경로를 알려줘야 합니다.
+
+```js
+export default defineConfig({
+  base: '/my-app/',
+  // …
+})
+```
+
+GitHub Pages 처럼 `아이디.github.io/저장소이름/` 형태로 열리는 곳이 대표적입니다.
+
+### 9-6. 배포 전 점검표
+
+| 항목 | 명령 / 확인 |
+| --- | --- |
+| 린트 통과 | `npm run lint` → exit 0 |
+| 빌드 성공 | `npm run build` → `dist/` 생성 |
+| 로컬에서 결과물 확인 | `npm run preview` |
+| **깊은 경로 새로고침** | `/stats` 에서 F5 → 404 아니면 OK |
+| 키가 Git 에 없는지 | `git ls-files \| grep .env` → `.env.example` 만 |
+| 페이지 제목 | `index.html` 의 `<title>` 이 "Vite App" 이 아닌지 |
+
+마지막 항목은 실제로 걸렸던 것입니다. 기본값이 `Vite App` 이라 브라우저 탭에 그대로 나오고 있었습니다.
+
+---
+
+## 10. 작업하면서 막혔던 것
 
 **`#app`이 2열로 갈라짐**
 내비게이션이 왼쪽, 화면이 오른쪽에 나오는 문제가 있었습니다. 원인은 내 코드가 아니라 Vue 프로젝트 생성 시 딸려온 [`assets/main.css`](src/assets/main.css)의 기본 스타일이었습니다.
