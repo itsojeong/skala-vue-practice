@@ -2,6 +2,17 @@
 
 vue.js 수업을 통해 진행한 code challenge를 작성합니다.
 
+## 제출 정보
+
+| 항목 | 주소 |
+| --- | --- |
+| GitHub 저장소 | https://github.com/itsojeong/skala-vue-practice |
+| 배포 주소 (Vercel) | `배포 후 여기에 기입` |
+| 과제 4~7 문서 | [vue-practice/vue-weather-dashboard/README.md](vue-practice/vue-weather-dashboard/README.md) |
+| 과제 1~3 문서 | [vue-practice/vue-weather-basic/README.md](vue-practice/vue-weather-basic/README.md) |
+
+트러블슈팅 기록은 과제 4~7 문서의 **11절**에 있습니다.
+
 ## 프로젝트 구성
 
 Hands on 과제를 **Vue Router 적용 시점**을 기준으로 두 프로젝트로 나눴습니다.

@@ -3,6 +3,15 @@
 Vue Router를 적용해 **한 화면짜리 앱을 여러 페이지를 가진 앱으로 바꾸는** 과제입니다.
 과제 1~3은 [`../vue-weather-basic`](../vue-weather-basic) 프로젝트에 있고, 이 폴더는 그 결과물 위에 라우터만 얹은 별도 프로젝트로 구분했습니다. 
 
+## 제출 정보
+
+| 항목 | 주소 |
+| --- | --- |
+| GitHub 저장소 | https://github.com/itsojeong/skala-vue-practice |
+| 배포 주소 (Vercel) | `배포 후 여기에 기입` |
+| 이 문서 | `vue-practice/vue-weather-dashboard/README.md` |
+| 과제 1~3 문서 | [`../vue-weather-basic/README.md`](../vue-weather-basic/README.md) |
+
 ```sh
 npm run dev   # http://localhost:5173
 ```
@@ -654,10 +663,114 @@ GitHub Pages 처럼 `아이디.github.io/저장소이름/` 형태로 열리는 �
 
 ---
 
-## 10. 작업하면서 막혔던 것
+## 10. Vercel 배포하기
 
-**`#app`이 2열로 갈라짐**
-내비게이션이 왼쪽, 화면이 오른쪽에 나오는 문제가 있었습니다. 원인은 내 코드가 아니라 Vue 프로젝트 생성 시 딸려온 [`assets/main.css`](src/assets/main.css)의 기본 스타일이었습니다.
+### 10-1. 이 저장소의 특수 사정
+
+저장소 안에 프로젝트가 **두 개**입니다.
+
+```text
+skala-vue-practice/          ← 저장소 루트 (package.json 없음)
+└── vue-practice/
+    ├── vue-weather-basic/       ← 프로젝트 1
+    └── vue-weather-dashboard/   ← 프로젝트 2 (배포 대상)
+```
+
+Vercel 은 기본적으로 저장소 루트에서 `package.json` 을 찾습니다. 루트에는 없으므로
+**Root Directory 를 반드시 지정**해야 합니다. 이걸 놓치면 "No package.json found" 로 빌드가 실패합니다.
+
+### 10-2. 설정 순서
+
+1. [vercel.com](https://vercel.com) 에 GitHub 계정으로 로그인
+2. **Add New → Project** → `skala-vue-practice` 저장소 선택
+3. 설정 화면에서 아래처럼 지정
+
+| 항목 | 값 |
+| --- | --- |
+| Root Directory | `vue-practice/vue-weather-dashboard` |
+| Framework Preset | Vite (자동 인식됨) |
+| Build Command | `npm run build` (자동) |
+| Output Directory | `dist` (자동) |
+
+4. **Environment Variables** 에 API 키 등록
+
+| Name | Value |
+| --- | --- |
+| `VITE_OPENWEATHER_API_KEY` | 발급받은 키 |
+
+5. **Deploy** 클릭
+
+### 10-3. 환경변수를 반드시 등록해야 하는 이유
+
+`.env.local` 은 Git 에 올라가지 않으므로 **Vercel 서버에는 그 파일이 없습니다.**
+등록하지 않으면 배포는 성공하지만 화면에 "API 키가 없습니다" 만 뜹니다.
+
+> 환경변수를 나중에 추가·수정하면 **재배포(Redeploy)를 해야** 반영됩니다.
+> 로컬에서 dev 서버를 다시 켜야 했던 것과 같은 이유입니다 — 빌드 시점에 값이 박힙니다.
+
+### 10-4. SPA 폴백
+
+[`vercel.json`](vercel.json) 에 넣어뒀습니다. 9-4 절에서 확인한 "깊은 경로 새로고침 404" 를 막습니다.
+
+```json
+{ "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }
+```
+
+### 10-5. 배포 후 확인
+
+| 확인할 것 | 기대 결과 |
+| --- | --- |
+| 첫 화면 | 실제 기온이 표시됨 (환경변수 확인) |
+| `/stats` 로 이동 후 **F5** | 404 가 아니라 통계 화면 (폴백 확인) |
+| 브라우저 탭 제목 | "날씨 대시보드 — Vue Hands on" |
+| 이후 `git push` | 자동으로 재배포됨 |
+
+---
+
+## 11. 트러블슈팅 기록
+
+실제로 막혔던 것들입니다. 증상 → 원인 → 해결 순으로 정리했습니다.
+
+### 11-1. 한 파일에 컴포넌트를 두 개 넣어 컴파일 실패
+
+**증상** — 작성한 `.vue` 파일이 화면에 아무것도 안 나오고 빌드가 깨짐
+
+**원인** — `<script setup>` 과 `<template>` 이 한 파일에 두 벌씩 들어감. 게다가 `<div>` 가 `</template>` 바깥에 있었음
+
+**해결** — `.vue` 파일 하나 = 컴포넌트 하나. 부모와 자식을 각각 다른 파일로 분리
+
+### 11-2. 파일명에 공백과 `&`
+
+**증상** — `Props & Emits Example.vue` 를 import 할 때마다 경로가 깨짐
+
+**원인** — 공백과 `&` 는 경로에서 이스케이프가 필요한 문자
+
+**해결** — 파일명은 영문·숫자·하이픈만. 컴포넌트는 파스칼케이스(`WeatherCard.vue`)
+
+### 11-3. IDE 자동 import 가 만든 `.vue/index.js` 경로
+
+**증상**
+```text
+Failed to resolve import "./practices/component/ChildComponent.vue/index.js"
+```
+
+**원인** — VSCode 가 파일을 옮길 때 import 경로를 자동 수정하면서 `.vue` 를 **폴더로 착각**함
+
+**해결** — 경로 끝의 `/index.js` 만 지움. `.vue` 는 파일이지 폴더가 아님
+
+### 11-4. 같은 컴포넌트가 두 폴더에 중복
+
+**증상** — 코드를 고쳤는데 화면이 안 바뀜
+
+**원인** — 같은 이름의 파일이 두 곳에 있고, 화면은 다른 쪽을 쓰고 있었음
+
+**해결** — **import 경로를 따라가면** 실제로 쓰이는 파일을 알 수 있음. 아무도 import 하지 않는 파일은 화면에 나오지 않음. 중복본을 지우고 한 벌만 유지
+
+### 11-5. 화면이 좌우 2열로 갈라짐
+
+**증상** — 내비게이션이 왼쪽, 콘텐츠가 오른쪽에 나옴
+
+**원인** — 내 코드가 아니라 프로젝트 생성 시 딸려온 [`assets/main.css`](src/assets/main.css) 의 기본 스타일
 
 ```css
 @media (min-width: 1024px) {
@@ -665,16 +778,89 @@ GitHub Pages 처럼 `아이디.github.io/저장소이름/` 형태로 열리는 �
 }
 ```
 
-기본 템플릿 CSS도 내 레이아웃에 영향을 준다는 걸 알게 됐습니다. `display: block`으로 바꿔 해결했습니다.
+**해결** — `display: block` 으로 변경. **템플릿이 넣어준 CSS 도 내 레이아웃에 영향을 준다**는 걸 알게 된 지점
 
-**IDE 자동 import가 만든 잘못된 경로**
-VSCode에서 `.vue` 파일을 다른 폴더로 옮겼더니 import 경로가 `ChildComponent.vue/index.js`로 자동 수정되면서 에러가 났습니다. `.vue`를 폴더로 착각한 것이라 뒤의 `/index.js`만 지우면 됩니다.
+### 11-6. 오타 파일명 (`UnitToogler.vue`)
 
-**중복 파일 정리**
-같은 컴포넌트를 두 폴더에 만들어 두고 헷갈린 적이 있습니다. 어느 쪽이 실제로 쓰이는지는 **import 경로를 따라가면** 알 수 있습니다. 아무도 import하지 않는 파일은 화면에 나오지 않습니다. 라우터를 새로 쓰면서 연결이 끊긴 기본 템플릿 파일들(`HomeView.vue`, `TheWelcome.vue`, `icons/` 등)도 함께 정리했습니다.
+**증상** — 만든 컴포넌트가 어디서도 안 보임
 
-**빈 파일 `UnitToogler.vue`**
-파일명을 `Toogler` 로 잘못 만들어 `src/` 최상단에 0바이트로 남아 있었습니다. 컴포넌트는 `components/exercise/UnitToggler.vue` 로 다시 만들고 오타 파일은 지웠습니다.
+**원인** — `Toggler` 를 `Toogler` 로 잘못 적었고, 파일은 0바이트로 남아 있었음
 
-**Pinia 가 이미 등록되어 있었던 것**
-안 쓰이는 파일을 정리할 때 `stores/counter.js` 는 지웠지만 [`main.js`](src/main.js) 의 `app.use(createPinia())` 는 남겨뒀습니다. 덕분에 과제 5에서 설정 없이 바로 스토어를 만들 수 있었습니다. **설정 코드와 예제 파일은 구분해서 지워야 한다**는 걸 알게 된 지점입니다.
+**해결** — 올바른 이름으로 다시 만들고 오타 파일 삭제
+
+### 11-7. API 401 — 키를 넣었는데 안 됨
+
+**증상** — 콘솔에 `[OpenWeather] 401 Invalid API key`
+
+**원인 두 가지**
+1. `.env.local` 을 저장하고 dev 서버를 **재시작하지 않음**
+2. 키를 발급받은 직후라 **아직 활성화되지 않음** (최대 2시간 소요)
+
+**해결** — 서버 재시작이 먼저. 그래도 401 이면 시간을 두고 재시도
+
+> Vite 는 환경변수를 **시작할 때 한 번만** 읽습니다. 켜둔 채 저장하면 아무리 새로고침해도 반영되지 않습니다.
+
+### 11-8. 날씨 설명이 "온흐림", "실 비"
+
+**증상** — 화면에 어색한 한글이 표시됨
+
+**원인** — `lang: 'kr'` 로 받은 OpenWeatherMap 의 번역. `overcast clouds` → "온흐림", `light rain` → "실 비"
+
+**해결책 (미적용)** — 응답에 함께 오는 `weather[0].id` (804, 500 …) 로 직접 라벨을 매핑하면 됨. 현재 코드는 `description` 과 `icon` 만 꺼내 쓰고 `id` 는 사용하지 않음
+
+### 11-9. 빌드 결과를 올렸더니 새로고침에서 404
+
+**증상** — `/stats` 에서 F5 를 누르면 404
+
+**원인** — 앱에 `stats` 라는 **파일이 없음**. 화면 안에서 링크로 이동할 때는 JS 가 처리하지만, 새로고침하면 서버에게 그 파일을 요청하게 됨
+
+**확인 방법** — 빌드 결과를 두 가지로 띄워 비교
+
+| 주소 | `vite preview` | 일반 정적 서버 |
+| --- | --- | --- |
+| `/` | 200 | 200 |
+| `/stats` | 200 | **404** |
+
+**해결** — 없는 경로를 전부 `index.html` 로 돌려주는 SPA 폴백 설정 (9-4 절, [`vercel.json`](vercel.json))
+
+### 11-10. 브라우저 탭 제목이 "Vite App"
+
+**증상** — 배포 점검 중 발견
+
+**원인** — 프로젝트 생성 시의 기본값을 그대로 둠
+
+**해결** — [`index.html`](index.html) 의 `<title>` 을 실제 제목으로 변경
+
+### 11-11. 커밋했는데 GitHub 에 안 보임
+
+**증상** — 커밋을 했는데 저장소 페이지에 파일이 없음
+
+**원인** — **커밋과 push 는 별개.** 커밋은 내 컴퓨터 안의 기록일 뿐
+
+**확인 방법**
+```sh
+git status -sb
+## main...origin/main [ahead 1]   ← 로컬이 1개 앞섬 = 아직 안 올라감
+## main...origin/main             ← 동기화됨
+```
+
+**해결** — `git push origin main`
+
+### 11-12. UI 라이브러리가 기존 디자인을 덮어씀 (예방)
+
+**상황** — Element Plus 를 `main.js` 에 전역 등록하면 대시보드 디자인까지 영향을 받음
+
+**해결** — 연습 페이지 파일 안에서만 import. 빌드 결과로 격리가 확인됨
+
+```text
+UiPracticeView-*.js   365.59 kB   ← 라이브러리가 여기에만
+WeatherHomeView-*.js    4.30 kB   ← 대시보드는 그대로
+```
+
+### 11-13. 정리할 때 설정 코드까지 지울 뻔함
+
+**상황** — 안 쓰는 파일을 정리하며 `stores/counter.js` 를 삭제. [`main.js`](src/main.js) 의 `app.use(createPinia())` 는 남겨둠
+
+**결과** — 과제 5에서 설정 없이 바로 스토어를 만들 수 있었음
+
+**배운 것** — **예제 파일과 설정 코드는 구분해서** 지워야 함
