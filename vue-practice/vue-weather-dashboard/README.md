@@ -1,7 +1,7 @@
 # vue-weather-dashboard — Hands on 과제 4~7: Router · Store · Axios · Deployment
 
 Vue Router를 적용해 **한 화면짜리 앱을 여러 페이지를 가진 앱으로 바꾸는** 과제입니다.
-과제 1~3은 [`../vue-weather-basic`](../vue-weather-basic) 프로젝트에 있고, 이 폴더는 그 결과물 위에 라우터만 얹은 별도 프로젝트로 구분했습니다. 
+이 폴더는 그 결과물 위에 라우터만 얹은 별도 프로젝트로 구분했습니다. 
 
 ## 제출 정보
 
@@ -11,8 +11,6 @@ Vue Router를 적용해 **한 화면짜리 앱을 여러 페이지를 가진 앱
 | 배포 주소 (Vercel) | https://skala-vue-practice-kappa.vercel.app |
 | 이 문서 | `vue-practice/vue-weather-dashboard/README.md` |
 | 과제 1~3 문서 | [`../vue-weather-basic/README.md`](../vue-weather-basic/README.md) |
-
-> 트러블슈팅 기록은 **11절**, 강의 범위를 넘어선 부분의 표시는 **12절**에 있습니다.
 
 ```sh
 npm run dev   # http://localhost:5173
@@ -26,8 +24,6 @@ npm run dev   # http://localhost:5173
 | — | UI 라이브러리 연습 | `element-plus` | 8절 |
 | 7 | Weather Deployment | ESLint · Vite build | 9절 |
 
-과제 5·6은 과제 4의 결과물을 **이어서 고친 것**이라 같은 프로젝트에 있습니다.
-
 ---
 
 ## 1. 이 과제에서 해결하려던 문제 (과제 4)
@@ -38,7 +34,7 @@ npm run dev   # http://localhost:5173
 2 주소창이 바뀌지 않아서 **특정 도시 화면을 링크로 공유할 수 없다**
 3 브라우저 뒤로가기 버튼이 동작하지 않는다
 
-Vue Router는 **주소(URL)와 컴포넌트를 짝지어주는 도구**입니다. `/weather/city_01` 주소로 들어오면 서울 상세 페이지 컴포넌트를 그려주는 식입니다. 위 세 가지가 한 번에 해결됩니다.
+Vue Router는 **주소(URL)와 컴포넌트를 짝지어주는 도구**로 `/weather/city_01` 주소로 들어오면 서울 상세 페이지 컴포넌트를 그려줍니다.
 
 ---
 
@@ -75,7 +71,7 @@ src/
 
 ### components와 views를 왜 나누나
 
-기능은 똑같은 `.vue` 파일이지만 **역할이 다릅니다.**
+기능은 똑같은 `.vue` 파일이지만 **역할이 다르기 때문에.**
 
 | | components/ | views/ |
 | --- | --- | --- |
@@ -83,11 +79,11 @@ src/
 | 재사용 | 여러 곳에서 반복 사용 | 한 주소에 하나 |
 | 예 | 버튼, 카드, 검색창 | 대시보드 화면, 상세 화면 |
 
-라우터에 등록되는 건 `views/`뿐입니다. 이 규칙을 지키면 나중에 "이 화면이 어느 주소였지?"를 폴더만 보고 알 수 있습니다.
+이 규칙을 지키면 나중에 "이 화면이 어느 주소였지?"를 폴더만 보고 알 수 있습니다.
 
 ---
 
-## 3. 배운 것을 순서대로
+## 3. 학습 과정과 과제 수행 과정
 
 ### 3-1. 라우터 등록 — 주소와 컴포넌트 짝짓기
 
@@ -102,7 +98,7 @@ src/
 ```
 
 - `path` — 주소
-- `name` — 코드에서 부를 이름 (주소를 나중에 바꿔도 이 이름은 그대로라 안전)
+- `name` — 코드에서 부를 이름 (주소를 나중에 바꿔도 이 이름은 그대로)
 - `component` — 그 주소에서 띄울 컴포넌트
 
 ### 3-2. 지연 로딩 (Lazy Loading)
@@ -111,7 +107,7 @@ src/
 
 **차이:** 앞쪽은 앱을 켤 때 모든 페이지를 통째로 내려받고, 뒤쪽은 **그 주소에 처음 들어갈 때 필요한 조각만** 내려받습니다. 화살표 함수로 감싸는 건 "지금 실행하지 말고, 필요할 때 실행할 함수만 넘겨둔다"는 뜻입니다.
 
-`npm run build`를 돌리면 눈으로 확인됩니다.
+`npm run build`를 돌리면 주소에서 확인할 수 있습니다.
 
 ```text
 dist/assets/WeatherDetailView-CG96NYcg.js   1.83 kB
@@ -119,12 +115,12 @@ dist/assets/WeatherStatsView-DXH0zx_I.js    1.68 kB
 dist/assets/NotFoundView-DQK-1Ztz.js        0.57 kB
 ```
 
-페이지마다 파일이 따로 떨어졌습니다. 지연 로딩을 안 썼다면 `index.js` 하나만 나왔을 겁니다.
+페이지마다 파일이 따로 떨어졌습니다. 지연 로딩을 안 썼다면 `index.js` 하나만 나옵니다.
 브라우저 개발자도구 Network 탭을 켜고 메뉴를 눌러보면, 그 순간 해당 `.js` 파일을 받아오는 게 보입니다.
 
 ### 3-3. App.vue의 역할 축소
 
-[`App.vue`](src/App.vue)에는 이제 로직이 하나도 없습니다.
+[`App.vue`](src/App.vue)에는 로직이 하나도 없습니다.
 
 ```html
 <nav>
@@ -140,11 +136,11 @@ dist/assets/NotFoundView-DQK-1Ztz.js        0.57 kB
 - `<RouterLink>` — `<a>` 태그 대신 씁니다. `<a href>`는 페이지 전체를 새로고침해서 앱 상태가 다 날아가지만, `RouterLink`는 필요한 부분만 갈아끼웁니다.
 - `<RouterView>` — **화면이 들어오는 구멍**입니다. 주소가 바뀔 때마다 이 자리의 컴포넌트만 교체됩니다. 위아래 내비게이션은 그대로 남습니다.
 
-**공짜로 얻는 것:** 현재 주소와 일치하는 `RouterLink`에는 Vue Router가 `router-link-exact-active` 클래스를 자동으로 붙여줍니다. CSS만 쓰면 현재 메뉴 강조가 끝납니다. 직접 "지금 어느 탭이지"를 변수로 관리할 필요가 없습니다.
+현재 주소와 일치하는 `RouterLink`에는 Vue Router가 `router-link-exact-active` 클래스를 자동으로 붙여줍니다. CSS만 쓰면 현재 메뉴 강조가 끝납니다. 직접 "지금 어느 탭이지"를 변수로 관리할 필요가 없습니다.
 
 ### 3-4. 동적 경로 매칭 — 주소로 값을 전달하기
 
-도시가 5개라고 상세 페이지를 5개 만들 수는 없습니다. 주소의 일부를 변수로 비워둡니다.
+도시가 5개라고 상세 페이지를 5개 만드는 것은 공수가 크기 때문에 주소의 일부를 변수로 비워두어 경로를 띄웁니다.
 
 ```js
 path: '/weather/:cityId'
@@ -181,7 +177,7 @@ const onClickDetail = (city) => {
 
 과제 3의 `window.alert(...)`를 이 두 줄로 바꾼 것이 이번 과제의 핵심 변경점입니다.
 
-> **헷갈리기 쉬운 부분:** `useRoute()`와 `useRouter()`는 이름이 한 글자 차이지만 하는 일이 다릅니다.
+> **헷갈리기 쉬운 부분:** `useRoute()`와 `useRouter()`는 하는 일이 다릅니다.
 > - `useRoute()` — **현재** 주소 정보를 읽음 (params, query, path)
 > - `useRouter()` — 주소를 **바꾸는** 명령을 내림 (push, replace, back)
 
@@ -197,13 +193,13 @@ const onClickDetail = (city) => {
 
 `.*`는 "아무 문자열이나"라는 뜻이라 모든 주소에 매칭됩니다.
 
-> **반드시 배열의 맨 마지막에 둬야 합니다.** 라우터는 위에서부터 순서대로 검사하다가 처음 맞는 것에서 멈춥니다. 이걸 맨 위에 두면 `/about`도 `/stats`도 전부 404로 가버립니다.
+> 라우터는 위에서부터 순서대로 검사하다가 처음 맞는 것에서 멈추기 때문에 **반드시 배열의 맨 마지막에 둬야 합니다.** 이걸 맨 위에 두면 `/about`도 `/stats`도 전부 404를 띄웁니다.
 
 ---
 
-## 4. 직접 확인해보기
+## 4. 확인
 
-| 해볼 것 | 기대 결과 | 확인하는 개념 |
+| 구분 | 기대 결과 | 확인하는 개념 |
 | --- | --- | --- |
 | 상세보기 버튼 클릭 | 주소가 `/weather/city_01`로 바뀜 | Programmatic Navigation |
 | 그 상태에서 뒤로가기 | 대시보드로 복귀 | 브라우저 히스토리 연동 |
@@ -214,7 +210,7 @@ const onClickDetail = (city) => {
 
 ---
 
-## 5. 과제 요구사항 대조표 (과제 4)
+## 5. 과제4 요구사항
 
 | 요구사항 | 구현 위치 |
 | --- | --- |
@@ -225,7 +221,7 @@ const onClickDetail = (city) => {
 | 5. WeatherAboutView — 소개 + 복귀 링크 | [WeatherAboutView.vue](src/views/WeatherAboutView.vue) |
 | 6. 추가 view 작성 및 라우팅 | [WeatherStatsView.vue](src/views/WeatherStatsView.vue) (`/stats`) |
 
-**추가 view (`/stats`)** 는 `computed`로 평균·최고·최저 기온과 날씨 상태별 도시 수를 집계합니다. 과제 2에서 배운 `computed`를 새 화면에서 다시 쓴 것입니다.
+**With Claude 추가 view (`/stats`)** 는 `computed`로 평균·최고·최저 기온과 날씨 상태별 도시 수를 집계합니다. 과제 2에서 배운 `computed`를 새 화면에서 다시 사용했습니다.
 
 ---
 
@@ -238,9 +234,9 @@ const onClickDetail = (city) => {
 - 바꾸는 곳 — 내비게이션 바의 `UnitToggler`
 - 쓰는 곳 — 대시보드 카드, 상세 페이지, 통계 페이지
 
-props 로 하려면 `App → RouterView → 각 View → WeatherCard` 까지 값을 계속 내려보내고, 바꿀 때는 emit 을 역순으로 올려야 합니다. **중간 컴포넌트들은 그 값에 관심도 없는데 배달만 하는** 구조가 됩니다. 이걸 prop drilling 이라고 부릅니다.
+props 로 하려면 `App → RouterView → 각 View → WeatherCard` 까지 값을 계속 내려보내고, 바꿀 때는 emit 을 역순으로 올려야 합니다. **중간 컴포넌트들은 그 값과 관련에 없어도 전달해야하는** 구조(prop drilling)가 됩니다.
 
-Pinia 는 상태를 **컴포넌트 바깥**에 둡니다. 필요한 컴포넌트가 직접 꺼내 쓰고, 중간 경로는 아무것도 몰라도 됩니다.
+Pinia 는 상태를 **컴포넌트 바깥**에서 필요한 컴포넌트가 직접 꺼내 쓰고, 중간 경로는 아무것도 모를 수 있습니다.
 
 ```text
 [props 방식]                        [스토어 방식]
@@ -252,9 +248,7 @@ App                                 ┌─────────────�
                                 (바꾼다)       (읽는다)
 ```
 
-> Pinia 는 프로젝트 생성 시 이미 설치되어 있었고, [`main.js`](src/main.js) 의 `app.use(createPinia())` 한 줄로 등록됩니다.
-
-### 6-2. 스토어의 세 부분 — state · getters · actions
+### 6-2. 스토어 — state · getters · actions
 
 [`stores/configStore.js`](src/stores/configStore.js)
 
@@ -272,15 +266,13 @@ export const useConfigStore = defineStore('config', {
 })
 ```
 
-이미 컴포넌트에서 쓰던 것들과 1:1로 대응됩니다.
-
 | 스토어 | 컴포넌트에서는 | 하는 일 |
 | --- | --- | --- |
 | `state` | `ref()` | 값 보관 |
 | `getters` | `computed()` | 파생 값 |
 | `actions` | 일반 함수 | 값 변경 |
 
-**틀리기 쉬운 두 가지**
+**틀리기 쉬운 개념**
 
 - `state` 는 반드시 **함수**여야 합니다. 객체를 그대로 쓰면 모든 인스턴스가 같은 객체를 공유하게 됩니다.
 - `actions` 에는 **화살표 함수를 쓰면 안 됩니다.** 화살표 함수는 자기 `this` 를 갖지 않아 `this.unit` 이 동작하지 않습니다. 반면 `getters` 는 `state` 를 인자로 받으므로 화살표 함수가 괜찮습니다.
@@ -298,7 +290,7 @@ const configStore = useConfigStore()
 <button @click="configStore.toggleUnit()">단위변경</button>
 ```
 
-지금까지 만든 컴포넌트와 결정적으로 다릅니다. `SearchBar` 는 `props` 로 받고 `emits` 로 올렸지만, 이 컴포넌트는 **부모와 대화하지 않습니다.** 스토어를 직접 읽고 씁니다.
+`SearchBar` 는 `props` 로 받고 `emits` 로 올렸지만, 이 컴포넌트는 **부모와 대화하지 않습니다.** 스토어를 직접 읽고 씁니다.
 [`App.vue`](src/App.vue) 에서 내비게이션 링크 옆에 배치했습니다.
 
 ### 6-4. displayTemp — 원본은 그대로, 표시할 때만 변환
@@ -315,11 +307,11 @@ const displayTemp = computed(() => {
 })
 ```
 
-**핵심은 원본을 건드리지 않는 것입니다.** `city.temp` 자체를 화씨로 바꿔버리면 다시 섭씨로 돌릴 때 반올림 때문에 값이 어긋납니다 (28 → 82 → 27.8). 원본은 섭씨로 두고 **그릴 때만** 변환하면 몇 번을 오가도 값이 유지됩니다.
+`city.temp` 자체를 화씨로 바꿔버리면 다시 섭씨로 돌릴 때 반올림 때문에 값이 어긋납니다.(28 → 82 → 27.8) 원본은 섭씨로 두고 **그릴 때만** 변환하면 몇 번을 오가도 값이 유지됩니다.
 
-같은 이유로 `v-if="city.temp >= 25"` 배지 조건은 `displayTemp` 가 아니라 **원본 `city.temp`** 를 씁니다. 화씨로 바꿨다고 "더움" 기준이 82도로 바뀌면 안 되기 때문입니다.
+`v-if="city.temp >= 25"` 배지 조건은 `displayTemp` 가 아니라 **원본 `city.temp`** 를 씁니다. 화씨로 바꿨다고 "더움" 기준이 82도로 바뀌면 안 되기 때문입니다.
 
-### 6-5. 요구사항 대조표
+### 6-5. 요구사항4
 
 | 요구사항 | 구현 위치 |
 | --- | --- |
@@ -341,23 +333,17 @@ isFavorite: (state) => (cityId) => state.favoriteIds.includes(cityId),
 
 통계 페이지에도 단위 설정을 적용했습니다. 요구사항에는 메인·상세만 있지만, 같은 화면에서 단위가 섞이면 어색하기 때문입니다.
 
-### 6-6. 확인해보기
+### 6-6. 확인
 
-| 해볼 것 | 기대 결과 | 확인하는 개념 |
+| 구분 | 기대 결과 | 확인하는 개념 |
 | --- | --- | --- |
 | 단위변경 클릭 | 대시보드 카드 온도가 전부 ℉ | state 공유 |
 | 그 상태로 상세 페이지 이동 | 상세도 ℉ 유지 | 페이지가 바뀌어도 스토어는 살아있음 |
 | 통계 페이지 이동 | 평균·최고·최저 전부 ℉ | 세 화면이 같은 값을 봄 |
-| 대시보드에서 ★ 누르고 상세 이동 | 상세에도 ★ 켜져 있음 | 스토어를 통한 컴포넌트 간 동기화 |
-| **브라우저 새로고침** | 설정이 초기값으로 돌아감 | 스토어는 메모리에만 있음 |
+| 대시보드에서 ★(즐겨찾기) 누르고 상세 이동 | 상세에도 ★(즐겨찾기) 켜져 있음 | 스토어를 통한 컴포넌트 간 동기화 |
+| 브라우저 새로고침 | 설정이 초기값으로 돌아감 | 스토어는 메모리에만 있음 |
 
 마지막 항목이 중요합니다. Pinia 는 **메모리 저장소**라 새로고침하면 사라집니다. 유지하려면 `localStorage` 에 저장하는 작업이 따로 필요합니다.
-
-### 6-7. 남겨둔 중복 — Composable
-
-`displayTemp` 변환 로직이 [`WeatherCard.vue`](src/components/exercise/WeatherCard.vue), [`WeatherDetailView.vue`](src/views/WeatherDetailView.vue), [`WeatherStatsView.vue`](src/views/WeatherStatsView.vue) 세 곳에 거의 같은 모양으로 들어가 있습니다.
-
-강의 자료에 "Composable 로 해결 가능 (범위 제외)" 라고 적힌 지점입니다. `composables/useTemperature.js` 하나를 만들어 세 곳에서 불러 쓰면 한 벌로 줄어듭니다. 범위 밖이라 중복을 그대로 뒀습니다.
 
 ---
 
@@ -376,7 +362,7 @@ VITE_OPENWEATHER_API_KEY=발급받은_키
 ```
 
 - Vite 는 **`VITE_` 로 시작하는 변수만** 앱 코드에 노출합니다. 이름을 바꾸면 못 읽습니다.
-- `.gitignore` 의 `*.local` 규칙에 걸려 **커밋되지 않습니다.** 키가 저장소에 올라가면 안 되기 때문입니다.
+- 키가 저장소에 올라가면 안 되기 때문에 `.gitignore` 의 `*.local` 규칙으로 **커밋하지 않습니다.** 
 - [`.env.example`](.env.example) 은 값 없이 형식만 담은 파일이라 커밋해도 안전합니다.
 - **값을 넣은 뒤에는 반드시 dev 서버를 다시 시작해야 합니다.** Vite 는 환경변수를 시작할 때 한 번만 읽습니다.
 
@@ -392,7 +378,7 @@ const openWeather = axios.create({
 })
 ```
 
-`axios.get(...)` 을 그대로 쓰면 호출마다 주소와 키를 반복해서 적어야 합니다. 인스턴스로 묶으면 각 함수는 **달라지는 부분만** 적습니다.
+`axios.get(...)` 을 그대로 쓰면 호출마다 주소와 키를 반복해서 적어야 하지만, 인스턴스로 묶으면 각 함수는 **달라지는 부분만** 적습니다.
 
 ```js
 openWeather.get('/weather', { params: { lat, lon } })
@@ -420,7 +406,7 @@ openWeather.interceptors.response.use(
 | 2. API 추가 | OpenWeather `/air_pollution` | 상세 "대기질" (PM10·PM2.5) |
 | 3. 기타 외부 API | [Open-Meteo](https://open-meteo.com) `/forecast` | 상세 "오늘 시간대별 기온" 막대그래프 |
 
-**Open-Meteo 를 고른 이유** — API 키가 필요 없습니다. 그래서 OpenWeather 키를 넣기 전에도 외부 통신이 동작하는 것을 확인할 수 있습니다.
+**Open-Meteo 를 고른 이유** — API 키가 필요 없어서 OpenWeather 키를 넣기 전에도 외부 통신이 동작하는 것을 확인할 수 있습니다.
 
 ### 7-5. 날씨 아이콘 이미지
 
@@ -439,7 +425,7 @@ export const getIconUrl = (icon, size = '@2x') =>
 
 `<img>` 에 `width`·`height` 를 속성으로 박아두면 이미지가 늦게 도착해도 자리를 미리 잡아 화면이 덜컥거리지 않습니다.
 
-> `lang: 'kr'` 로 받은 설명은 "온흐림"(overcast clouds), "실 비"(light rain) 처럼 어색합니다. 응답에 함께 오는 `weather[0].id` (804, 500 …) 로 직접 라벨을 매핑하면 자연스럽게 바꿀 수 있습니다. 지금은 API 문구를 그대로 씁니다.
+>**With Claude 제안** `lang: 'kr'` 로 받은 설명은 "온흐림"(overcast clouds), "실 비"(light rain) 처럼 어색합니다. 응답에 함께 오는 `weather[0].id` (804, 500 …) 로 직접 라벨을 매핑하면 자연스럽게 바꿀 수 있습니다.
 
 ### 7-6. 병렬 요청 — `Promise.all` vs `allSettled`
 
@@ -452,7 +438,7 @@ export const getIconUrl = (icon, size = '@2x') =>
 
 ### 7-7. 로딩과 에러 — 없던 상태가 생긴다
 
-지금까지는 데이터가 항상 거기 있었지만, 이제 **비어 있는 순간**이 생깁니다. [`weatherStore.js`](src/stores/weatherStore.js) 가 세 가지를 함께 들고 있습니다.
+데이터가 **비어 있는 순간**이 생깁니다. [`weatherStore.js`](src/stores/weatherStore.js) 가 세 가지를 함께 들고 있습니다.
 
 ```js
 state: () => ({ weatherList: [], loading: false, error: null })
@@ -466,7 +452,7 @@ state: () => ({ weatherList: [], loading: false, error: null })
 
 `finally` 에서 `loading = false` 를 하는 것도 같은 이유입니다. 실패했을 때 로딩 표시가 영영 안 사라지는 걸 막습니다.
 
-**정리한 것:** 값이 전부 API 에서 오므로 `weatherMockData.js` 는 삭제하고, 조회할 좌표만 [`cityList.js`](src/data/cityList.js) 에 남겼습니다. 도시명 대신 좌표를 쓰면 한글/영문 표기 차이로 검색이 실패할 일이 없습니다.
+**With Claude:** 값이 전부 API 에서 오므로 `weatherMockData.js` 는 삭제하고, 조회할 좌표만 [`cityList.js`](src/data/cityList.js) 에 남겼습니다. 도시명 대신 좌표를 쓰면 한글/영문 표기 차이로 검색이 실패할 일이 없습니다.
 
 ---
 
@@ -480,33 +466,28 @@ npm install element-plus
 
 ### 8-1. 왜 UI 라이브러리를 쓰나
 
-지금까지는 버튼·입력창·카드를 **직접 CSS 로** 만들었습니다. 색·크기·둥근 모서리를 매번 정하고, 호버 상태까지 따로 적었습니다.
-
-UI 라이브러리는 이걸 **속성 하나로** 끝냅니다.
+지금까지는 버튼·입력창·카드를 **직접 CSS 로** 만들었습니다. 색·크기·둥근 모서리를 매번 정하고, 호버 상태까지 따로 적었습니다. UI 라이브러리는 이걸 **속성 하나로** 대체할 수 있습니다.
 
 ```html
 <ElButton type="danger" size="small" round>삭제</ElButton>
 ```
 
-CSS 를 한 줄도 쓰지 않고 색·크기·모양이 정해집니다. 대신 **그 라이브러리가 정한 디자인을 따라야** 합니다.
+CSS 를 쓰지 않고 색·크기·모양을 정합니다. 대신 **그 라이브러리가 정한 디자인을 따릅니다.**
 
 ### 8-2. 전역 등록 대신 페이지 안에서만 import
 
-교재나 공식 문서는 보통 `main.js` 에서 전역 등록합니다.
+보통 `main.js` 에서 전역 등록합니다. 
+대시보드의 기존 디자인을 지키기 위해서 **연습 페이지 안에서만** 가져다 썼습니다.
 
 ```js
 // 흔한 방식 — 앱 전체에 적용된다
 app.use(ElementPlus)
 ```
 
-이 프로젝트는 대시보드의 기존 디자인을 지켜야 해서, **연습 페이지 안에서만** 가져다 씁니다.
-
 ```js
 import { ElButton, ElInput, ElTable /* … */ } from 'element-plus'
 import 'element-plus/dist/index.css'
 ```
-
-`npm run build` 결과로 확인됩니다.
 
 ```text
 dist/assets/UiPracticeView-Cd2ntamY.js   365.59 kB   ← Element Plus 가 여기에만
@@ -515,7 +496,7 @@ dist/assets/WeatherHomeView-BN7dSzVY.js    4.30 kB   ← 대시보드는 그대�
 
 라우터 지연 로딩과 맞물려, `/ui` 에 들어가지 않으면 365 kB 는 아예 내려받지 않습니다.
 
-### 8-3. 만든 것 (초급자 수준의 기본 기능)
+### 8-3. 직접 수행한 내용
 
 | 절 | 컴포넌트 | 배우는 것 |
 | --- | --- | --- |
@@ -527,17 +508,13 @@ dist/assets/WeatherHomeView-BN7dSzVY.js    4.30 kB   ← 대시보드는 그대�
 | 6 | `el-form` | 검증 규칙을 **선언**하면 검사·에러 문구를 라이브러리가 처리 |
 | 7 | `el-tabs` | 과제 1~3 에서 직접 만든 탭 전환이 태그 몇 줄로 |
 
-### 8-4. 배운 문법이 그대로 쓰이는 지점
-
-라이브러리라고 새로운 문법이 나오는 게 아닙니다. 앞 과제에서 배운 것이 그대로 보입니다.
-
 - **v-model** — `<ElInput v-model="text" />`. 우리가 `props` + `emits` 로 만들던 양방향 연결을 라이브러리가 대신 합니다.
 - **이름있는 slot** — 다이얼로그의 `#footer`, 카드의 `#header`. 과제 3의 Named Slot 그대로입니다.
 - **Scoped Slot** — 테이블 셀의 `#default="scope"`. 자식(테이블)이 행 데이터를 `scope` 에 담아 주고 모양은 우리가 정합니다. 과제 3에서 이해한 그 구조입니다.
 
-### 8-5. 확인해보기
+### 8-5. 확인
 
-| 해볼 것 | 기대 결과 |
+| 구분 | 기대 결과 |
 | --- | --- |
 | `/ui` 진입 | 7개 섹션이 Element Plus 디자인으로 표시 |
 | "삭제 확인창" 클릭 후 취소 | "취소했습니다" — Promise 의 `.catch` 분기 |
@@ -562,11 +539,11 @@ oxlint  : Found 0 warnings and 0 errors. (21 files, 89 rules)
 eslint  : exit code 0
 ```
 
-`npm run lint` 는 `--fix` 가 붙어 있어 **고칠 수 있는 것은 자동으로 고칩니다.** 검사만 하고 싶으면 `npx eslint .` 처럼 직접 부르면 됩니다.
+`npm run lint` 는 `--fix` 가 붙어 있어 **고칠 수 있는 것은 자동으로 고칩니다.**
 
-> 종료 코드(exit code)가 중요합니다. 0 이면 통과, 1 이면 에러가 남아 있다는 뜻입니다. CI 는 이 숫자로 성공·실패를 판단합니다.
+> 종료 코드(exit code)가 0 이면 통과, 1 이면 에러가 남아 있다는 뜻입니다. CI 는 이 숫자로 성공·실패를 판단합니다.
 
-### 9-2. API 키 관리 (7-1 에서 이미 처리)
+### 9-2. API 키 관리 
 
 | 확인 항목 | 상태 |
 | --- | --- |
@@ -575,7 +552,7 @@ eslint  : exit code 0
 | 저장소 이력에 키 문자열이 남았는가 | 아니오 (`git grep` 으로 전체 이력 확인) |
 | 다른 사람이 받아서 쓸 수 있는가 | 예 — `.env.example` 을 복사해 채우면 됨 |
 
-> 주의: Vite 의 `VITE_` 변수는 **빌드 결과물에 그대로 박힙니다.** 브라우저에서 볼 수 있다는 뜻입니다. Git 유출은 막지만 "키가 숨겨진다"는 뜻은 아닙니다. 진짜로 감춰야 하는 키라면 서버를 한 단계 두고 거기서 호출해야 합니다.
+> 주의: Vite 의 `VITE_` 변수는 **빌드 결과물에 그대로 노출됩니다.** 때문에 브라우저에서 볼 수 있습니다. **완전히 감춰야 하는 키라면 서버를 한 단계 두고 거기서 호출해야 합니다.**
 
 ### 9-3. 빌드
 
@@ -583,7 +560,7 @@ eslint  : exit code 0
 npm run build
 ```
 
-`dist/` 폴더에 정적 파일이 생깁니다. 서버 프로그램이 아니라 **HTML·CSS·JS 파일 묶음**입니다.
+`dist/` 폴더에 정적 파일이 생깁니다. **HTML·CSS·JS 파일 묶음**입니다.
 
 ```text
 dist/
@@ -610,9 +587,8 @@ dist/
 | `/weather/city_01` | 200 | **404** |
 | `/asdf` | 200 (앱의 404 화면) | **404** |
 
-**왜 이런가:** 우리 앱에는 `stats` 라는 파일이 없습니다. 화면 안에서 링크를 눌러 이동할 때는 JS 가 처리하니 문제가 없지만, 주소창에 직접 치거나 **새로고침**하면 서버에게 "stats 파일 주세요" 라고 묻게 됩니다. 서버에는 그런 파일이 없으니 404 입니다.
-
-**해결:** 없는 경로는 전부 `index.html` 을 돌려주도록 서버에 설정합니다(SPA 폴백). 그러면 Vue Router 가 주소를 보고 알맞은 화면을 그립니다.
+**왜 404가 뜨는지:** 우리 앱에는 `stats` 라는 파일이 없습니다. 화면 안에서 링크를 눌러 이동할 때는 JS 가 처리하니 문제가 없지만, 주소창에 직접 치거나 **새로고침**하면 서버에는 그런 파일이 없으니 404로 처리됩니다.
+**With Claude 해결 제안:** 없는 경로는 전부 `index.html` 을 돌려주도록 서버에 설정합니다(SPA 폴백). 그러면 Vue Router 가 주소를 보고 알맞은 화면을 그립니다.
 
 ```nginx
 # nginx
@@ -637,7 +613,7 @@ location / {
 npm run preview     # http://localhost:4173
 ```
 
-### 9-5. 하위 경로에 올릴 때
+### 9-5. 하위 경로에 올리려면
 
 `example.com/` 이 아니라 `example.com/my-app/` 처럼 **하위 경로**에 올리면, `index.html` 이 `/assets/…` 를 찾다가 전부 404 가 납니다. 이때는 `vite.config.js` 에 기준 경로를 알려줘야 합니다.
 
@@ -648,9 +624,7 @@ export default defineConfig({
 })
 ```
 
-GitHub Pages 처럼 `아이디.github.io/저장소이름/` 형태로 열리는 곳이 대표적입니다.
-
-### 9-6. 배포 전 점검표
+### 9-6. 배포 전 점검
 
 | 항목 | 명령 / 확인 |
 | --- | --- |
@@ -661,15 +635,13 @@ GitHub Pages 처럼 `아이디.github.io/저장소이름/` 형태로 열리는 �
 | 키가 Git 에 없는지 | `git ls-files \| grep .env` → `.env.example` 만 |
 | 페이지 제목 | `index.html` 의 `<title>` 이 "Vite App" 이 아닌지 |
 
-마지막 항목은 실제로 걸렸던 것입니다. 기본값이 `Vite App` 이라 브라우저 탭에 그대로 나오고 있었습니다.
-
 ---
 
 ## 10. Vercel 배포하기
 
-### 10-1. 이 저장소의 특수 사정
+### 10-1. 저장소 특징
 
-저장소 안에 프로젝트가 **두 개**입니다.
+프로젝트가 **두 개**입니다.
 
 ```text
 skala-vue-practice/          ← 저장소 루트 (package.json 없음)
@@ -678,13 +650,12 @@ skala-vue-practice/          ← 저장소 루트 (package.json 없음)
     └── vue-weather-dashboard/   ← 프로젝트 2 (배포 대상)
 ```
 
-Vercel 은 기본적으로 저장소 루트에서 `package.json` 을 찾습니다. 루트에는 없으므로
-**Root Directory 를 반드시 지정**해야 합니다. 이걸 놓치면 "No package.json found" 로 빌드가 실패합니다.
+Vercel 은 기본적으로 저장소 루트에서 `package.json` 을 찾습니다. 루트에는 없으므로 **Root Directory 를 반드시 지정**해야 합니다. 이걸 놓치면 "No package.json found" 로 빌드가 실패합니다.
 
 ### 10-2. 설정 순서
 
 1. [vercel.com](https://vercel.com) 에 GitHub 계정으로 로그인
-2. **Add New → Project** → `skala-vue-practice` 저장소 선택
+2. Add New → Project → `skala-vue-practice` 저장소 선택
 3. 설정 화면에서 아래처럼 지정
 
 | 항목 | 값 |
@@ -694,21 +665,19 @@ Vercel 은 기본적으로 저장소 루트에서 `package.json` 을 찾습니�
 | Build Command | `npm run build` (자동) |
 | Output Directory | `dist` (자동) |
 
-4. **Environment Variables** 에 API 키 등록
+4. Environment Variables 에 API 키 등록
 
 | Name | Value |
 | --- | --- |
 | `VITE_OPENWEATHER_API_KEY` | 발급받은 키 |
 
-5. **Deploy** 클릭
+5. Deploy 클릭
 
 ### 10-3. 환경변수를 반드시 등록해야 하는 이유
 
-`.env.local` 은 Git 에 올라가지 않으므로 **Vercel 서버에는 그 파일이 없습니다.**
+`.env.local` 은 Git 에 올리지 않았기 때문에 Vercel 서버에는 해당 파일이 없습니다.
 등록하지 않으면 배포는 성공하지만 화면에 "API 키가 없습니다" 만 뜹니다.
-
-> 환경변수를 나중에 추가·수정하면 **재배포(Redeploy)를 해야** 반영됩니다.
-> 로컬에서 dev 서버를 다시 켜야 했던 것과 같은 이유입니다 — 빌드 시점에 값이 박힙니다.
+환경변수를 나중에 추가·수정하면 재배포(Redeploy)를 해야 반영됩니다.
 
 ### 10-4. SPA 폴백
 
@@ -723,7 +692,7 @@ Vercel 은 기본적으로 저장소 루트에서 `package.json` 을 찾습니�
 | 확인할 것 | 기대 결과 |
 | --- | --- |
 | 첫 화면 | 실제 기온이 표시됨 (환경변수 확인) |
-| `/stats` 로 이동 후 **F5** | 404 가 아니라 통계 화면 (폴백 확인) |
+| `/stats` 로 이동 후 새로고침| 404 가 아니라 통계 화면 (폴백 확인) |
 | 없는 주소 (`/asdf`) | 우리가 만든 404 화면 — 내비게이션 바가 함께 보이면 정상 (11-10 절) |
 | 브라우저 탭 제목 | "날씨 대시보드 — Vue Hands on" |
 | 이후 `git push` | 자동으로 재배포됨 |
@@ -732,19 +701,19 @@ Vercel 은 기본적으로 저장소 루트에서 `package.json` 을 찾습니�
 
 ## 11. 트러블슈팅 기록
 
-실제로 막혔던 것들입니다. 증상 → 원인 → 해결 순으로 정리했습니다.
+과제를 수행하면서 경험한 상황을 증상 → 원인 → 해결 순으로 작성했습니다.
 
 ### 11-1. 한 파일에 컴포넌트를 두 개 넣어 컴파일 실패
 
-**증상** — 작성한 `.vue` 파일이 화면에 아무것도 안 나오고 빌드가 깨짐
+**증상** — 작성한 `.vue` 파일이 화면에 아무것도 안 나오고 빌드가 깨짐.
 
-**원인** — `<script setup>` 과 `<template>` 이 한 파일에 두 벌씩 들어감. 게다가 `<div>` 가 `</template>` 바깥에 있었음
+**원인** — `<script setup>` 과 `<template>` 이 한 파일에 두 벌씩 들어감. 게다가 `<div>` 가 `</template>` 바깥에 있었음.
 
 **해결** — `.vue` 파일 하나 = 컴포넌트 하나. 부모와 자식을 각각 다른 파일로 분리
 
 ### 11-2. 파일명에 공백과 `&`
 
-**증상** — `Props & Emits Example.vue` 를 import 할 때마다 경로가 깨짐
+**증상** — `Props & Emits Example.vue` 를 import 할 때마다 경로가 깨짐.
 
 **원인** — 공백과 `&` 는 경로에서 이스케이프가 필요한 문자
 
@@ -757,17 +726,17 @@ Vercel 은 기본적으로 저장소 루트에서 `package.json` 을 찾습니�
 Failed to resolve import "./practices/component/ChildComponent.vue/index.js"
 ```
 
-**원인** — VSCode 가 파일을 옮길 때 import 경로를 자동 수정하면서 `.vue` 를 **폴더로 착각**함
+**원인** — VSCode 가 파일을 옮길 때 import 경로를 자동 수정하면서 `.vue` 를 폴더로 착각함.
 
-**해결** — 경로 끝의 `/index.js` 만 지움. `.vue` 는 파일이지 폴더가 아님
+**해결** — 경로 끝의 `/index.js` 만 지움. `.vue` 는 파일이지 폴더가 아님.
 
 ### 11-4. 같은 컴포넌트가 두 폴더에 중복
 
-**증상** — 코드를 고쳤는데 화면이 안 바뀜
+**증상** — 코드를 고쳤는데 화면이 안 바뀜.
 
-**원인** — 같은 이름의 파일이 두 곳에 있고, 화면은 다른 쪽을 쓰고 있었음
+**원인** — 같은 이름의 파일이 두 곳에 있고, 화면은 다른 쪽을 쓰고 있었음.
 
-**해결** — **import 경로를 따라가면** 실제로 쓰이는 파일을 알 수 있음. 아무도 import 하지 않는 파일은 화면에 나오지 않음. 중복본을 지우고 한 벌만 유지
+**해결** — import 경로를 따라가면 실제로 쓰이는 파일을 알 수 있음. 아무도 import 하지 않는 파일은 화면에 나오지 않음. 중복본을 지우고 한 벌만 유지
 
 ### 11-5. 화면이 좌우 2열로 갈라짐
 
@@ -785,9 +754,9 @@ Failed to resolve import "./practices/component/ChildComponent.vue/index.js"
 
 ### 11-6. 오타 파일명 (`UnitToogler.vue`)
 
-**증상** — 만든 컴포넌트가 어디서도 안 보임
+**증상** — 만든 컴포넌트가 어디서도 안 보임.
 
-**원인** — `Toggler` 를 `Toogler` 로 잘못 적었고, 파일은 0바이트로 남아 있었음
+**원인** — `Toggler` 를 `Toogler` 로 잘못 적었고, 파일은 0바이트로 남아 있었음.
 
 **해결** — 올바른 이름으로 다시 만들고 오타 파일 삭제
 
@@ -805,7 +774,7 @@ Failed to resolve import "./practices/component/ChildComponent.vue/index.js"
 
 ### 11-8. 날씨 설명이 "온흐림", "실 비"
 
-**증상** — 화면에 어색한 한글이 표시됨
+**증상** — 화면에 어색한 한글이 표시됨.
 
 **원인** — `lang: 'kr'` 로 받은 OpenWeatherMap 의 번역. `overcast clouds` → "온흐림", `light rain` → "실 비"
 
@@ -815,7 +784,7 @@ Failed to resolve import "./practices/component/ChildComponent.vue/index.js"
 
 **증상** — `/stats` 에서 F5 를 누르면 404
 
-**원인** — 앱에 `stats` 라는 **파일이 없음**. 화면 안에서 링크로 이동할 때는 JS 가 처리하지만, 새로고침하면 서버에게 그 파일을 요청하게 됨
+**원인** — 앱에 `stats` 라는 **파일이 없음**. 화면 안에서 링크로 이동할 때는 JS 가 처리하지만, 새로고침하면 서버에게 그 파일을 요청하게 됨.
 
 **확인 방법** — 빌드 결과를 두 가지로 띄워 비교
 
@@ -828,9 +797,9 @@ Failed to resolve import "./practices/component/ChildComponent.vue/index.js"
 
 ### 11-10. 배포 후 404 — 서버 404 인가, 앱의 404 화면인가
 
-**증상** — 배포한 사이트에서 `/status` 로 들어갔더니 404. 강력 새로고침해도 그대로
+**증상** — 배포한 사이트에서 `/status` 로 들어갔더니 404. 강력 새로고침해도 그대로임.
 
-**원인** — 경로 오타. 통계 페이지는 `/stats` 이고 `/status` 는 등록된 적이 없음
+**원인** — 경로 오타. 통계 페이지는 `/stats` 이고 `/status` 는 등록된 적이 없음.
 
 **핵심** — 이건 **정상 동작**입니다. 서버 응답을 확인하면 구분됩니다.
 
@@ -840,7 +809,7 @@ Failed to resolve import "./practices/component/ChildComponent.vue/index.js"
 /weather/city_01   HTTP 200
 ```
 
-모든 경로가 200 이면 SPA 폴백이 **작동하고 있다는 뜻**입니다. 서버가 `index.html` 을 돌려주고, Vue Router 가 "등록 안 된 경로네" 하고 Catch-all 로 404 화면을 그린 것입니다.
+모든 경로가 200 이면 SPA 폴백이 작동하고 있다는 뜻입니다. 
 
 | | 서버의 404 (설정 실패) | 앱의 404 (정상) |
 | --- | --- | --- |
@@ -867,7 +836,7 @@ Failed to resolve import "./practices/component/ChildComponent.vue/index.js"
 
 ### 11-12. 커밋했는데 GitHub 에 안 보임
 
-**증상** — 커밋을 했는데 저장소 페이지에 파일이 없음
+**증상** — 커밋을 했는데 저장소 페이지에 파일이 없음.
 
 **원인** — **커밋과 push 는 별개.** 커밋은 내 컴퓨터 안의 기록일 뿐
 
@@ -880,11 +849,11 @@ git status -sb
 
 **해결** — `git push origin main`
 
-### 11-13. UI 라이브러리가 기존 디자인을 덮어씀 (예방)
+### 11-13. UI 라이브러리가 기존 디자인을 덮어쓸 위험
 
-**상황** — Element Plus 를 `main.js` 에 전역 등록하면 대시보드 디자인까지 영향을 받음
+**상황** — Element Plus 를 `main.js` 에 전역 등록하면 대시보드 디자인까지 영향을 받음.
 
-**해결** — 연습 페이지 파일 안에서만 import. 빌드 결과로 격리가 확인됨
+**해결** — 연습 페이지 파일 안에서만 import. 빌드 결과로 격리가 확인됨.
 
 ```text
 UiPracticeView-*.js   365.59 kB   ← 라이브러리가 여기에만
@@ -893,11 +862,11 @@ WeatherHomeView-*.js    4.30 kB   ← 대시보드는 그대로
 
 ### 11-14. 정리할 때 설정 코드까지 지울 뻔함
 
-**상황** — 안 쓰는 파일을 정리하며 `stores/counter.js` 를 삭제. [`main.js`](src/main.js) 의 `app.use(createPinia())` 는 남겨둠
+**상황** — 안 쓰는 파일을 정리하며 `stores/counter.js` 를 삭제. [`main.js`](src/main.js) 의 `app.use(createPinia())` 는 남겨둠.
 
-**결과** — 과제 5에서 설정 없이 바로 스토어를 만들 수 있었음
+**결과** — 과제 5에서 설정 없이 바로 스토어를 만들 수 있었음.
 
-**배운 것** — **예제 파일과 설정 코드는 구분해서** 지워야 함
+**배운 것** — 예제 파일과 설정 코드는 구분해서 지워야 함.
 
 ---
 
@@ -908,7 +877,7 @@ WeatherHomeView-*.js    4.30 kB   ← 대시보드는 그대로
 
 ### 12-1. 요구사항이 자율에 맡긴 항목
 
-강의자료가 "본인만의 ○○을 추가한다"라고 열어둔 부분입니다. **범위 안**입니다.
+강의자료가 "본인만의 ○○을 추가한다"라고 열어둔 부분입니다. 범위 안입니다.
 
 | 항목 | 근거 요구사항 | 구현 |
 | --- | --- | --- |
@@ -918,13 +887,13 @@ WeatherHomeView-*.js    4.30 kB   ← 대시보드는 그대로
 | 예보 · 대기오염 API | 과제 6 요구사항 2 — 제공 API 추가 | [openWeatherApi.js](src/api/openWeatherApi.js) |
 | Open-Meteo API | 과제 6 요구사항 3 — 기타 외부 API | [openMeteoApi.js](src/api/openMeteoApi.js) |
 
-### 12-2. 강의자료에 없는 기법 (초급 이상)
+### 12-2. 강의자료에 없지만 AI와 함께 작업한 내용에 대한 설명
 
-**강의자료만 보고는 떠올리기 어려운 부분**입니다. 필요해서 넣었지만, 배운 범위 밖이라는 점을 명시합니다.
+강의자료만 보고는 떠올리기 어려운 부분으로 AI가 검토하는 과정에서 필요해서 넣었지만, 배운 범위 밖이라는 점을 명시합니다.
 
 | # | 항목 | 위치 | 왜 넣었나 | 강의 범위로 낮춘다면 |
 | --- | --- | --- | --- | --- |
-| 1 | axios **인터셉터** | [openWeatherApi.js](src/api/openWeatherApi.js) | 401·404·429·타임아웃 문구를 한 곳에서 처리 | 각 함수에서 `try/catch` 로 개별 처리 |
+| 1 | axios 인터셉터 | [openWeatherApi.js](src/api/openWeatherApi.js) | 401·404·429·타임아웃 문구를 한 곳에서 처리 | 각 함수에서 `try/catch` 로 개별 처리 |
 | 2 | `Promise.all` / `allSettled` 구분 | [weatherStore.js](src/stores/weatherStore.js), [WeatherDetailView.vue](src/views/WeatherDetailView.vue) | 도시 5곳·API 4개를 동시 호출, 일부 실패 허용 | `for` 문으로 하나씩 `await` (느려짐) |
 | 3 | 로딩·에러·데이터 3분기 상태 | [weatherStore.js](src/stores/weatherStore.js) | 통신에는 "데이터가 없는 순간" 이 있음 | 로딩 표시 없이 빈 화면 |
 | 4 | 아이콘 URL 헬퍼 `getIconUrl` | [openWeatherApi.js](src/api/openWeatherApi.js) | 응답에 이미지 주소가 없어 코드로 조립해야 함 | 템플릿에 URL 문자열을 직접 이어붙이기 |
@@ -933,19 +902,17 @@ WeatherHomeView-*.js    4.30 kB   ← 대시보드는 그대로
 | 7 | `.env.example` 파일 | [.env.example](.env.example) | 키 없이 형식만 공유해 협업 가능하게 | 없어도 동작에는 지장 없음 |
 | 8 | Element Plus 를 **페이지 안에서만** import | [UiPracticeView.vue](src/views/UiPracticeView.vue) | 전역 등록하면 기존 대시보드 디자인이 바뀜 | `main.js` 에서 `app.use(ElementPlus)` (일반적인 방식) |
 
-### 12-3. 구조에 대한 판단
-
-강의자료가 정해주지 않아 직접 결정한 부분입니다.
+### 12-3. 프로젝트 구조
 
 | 결정 | 이유 |
 | --- | --- |
-| 프로젝트를 **둘로 분리** (`vue-weather-basic` / `vue-weather-dashboard`) | 과제 4에서 화면 전환 방식이 탭 → 라우터로 바뀌어, 한 프로젝트에 두면 이전 방식이 사라짐 |
+| 프로젝트를 둘로 분리(`vue-weather-basic` / `vue-weather-dashboard`) | 과제 4에서 화면 전환 방식이 탭 → 라우터로 바뀌어, 한 프로젝트에 두면 이전 방식이 사라짐 |
 | 과제 1~3 은 탭(`v-if`), 과제 4~ 는 라우터 | 위와 같은 이유. 두 방식을 나란히 비교할 수 있게 |
 | `components/exercise/` 와 `components/practices/` 분리 | 강의자료 슬라이드의 폴더 트리를 따름 |
 | Mock 데이터 삭제 | 과제 6부터 값이 전부 API 에서 오므로 참조되지 않는 파일이 됨 |
 
-### 12-4. 정직하게 남기는 한계
+### 12-4. 한계
 
-- **날씨 설명이 어색합니다** — "온흐림", "실 비" 는 OpenWeatherMap 의 한국어 번역입니다. `weather[0].id` 로 직접 라벨을 매핑하면 고칠 수 있지만 적용하지 않았습니다 (11-8 절).
-- **온도 변환 코드가 3곳에 중복** — 강의자료가 "Composable 로 해결 가능 (범위 제외)" 라고 명시한 부분이라 그대로 뒀습니다 (6-7 절).
-- **ESLint 는 고칠 것이 없었습니다** — 처음 실행부터 0 error 였습니다. "에러를 없앴다" 가 아니라 "에러가 없음을 확인했다" 가 정확합니다 (9-1 절).
+- 날씨 설명이 어색합니다 — "온흐림", "실 비" 는 OpenWeatherMap 의 한국어 번역입니다. `weather[0].id` 로 직접 라벨을 매핑하면 고칠 수 있지만 적용하지 않았습니다.
+- 온도 변환 코드가 3곳에 중복 — 강의자료가 "Composable 로 해결 가능 (범위 제외)" 라고 명시한 부분이라 그대로 뒀습니다.
+- ESLint 는 고칠 것이 없었습니다 — 처음 실행부터 0 error 였습니다. "에러를 없앴다" 가 아니라 "에러가 없음을 확인했다" 가 정확합니다.
