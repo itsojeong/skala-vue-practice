@@ -1,13 +1,13 @@
 # vue-weather-basic — Hands on 과제 1~3 + 컴포넌트 문법 연습
 
-Vue를 처음 배우면서 **문법 → 반응형 → 컴포넌트 분리** 순서로 쌓아 올린 결과물입니다.
-라우터를 적용한 과제 4는 별도 프로젝트 [`../vue-weather-dashboard`](../vue-weather-dashboard)에 있습니다.
+**문법 → 반응형 → 컴포넌트 분리** 순서로 수행한 결과물입니다.
+라우터를 적용한 과제부터는 별도 프로젝트 [`../vue-weather-dashboard`](../vue-weather-dashboard)에 작성했습니다.
 
 ```sh
 npm run dev   # http://localhost:5174
 ```
 
-실행하면 상단 탭으로 **과제 1 / 과제 2 / 과제 3 / Practice** 를 오갈 수 있습니다.
+실행하면 상단 탭으로 **과제 1 / 과제 2 / 과제 3 / Practice** 를 이동할 수 있습니다.
 
 ---
 
@@ -34,13 +34,13 @@ src/
         └── SlotScopedChild.vue / SlotScopedParent.vue    # Scoped Slot
 ```
 
-**과제 1 → 2 → 3은 화면이 거의 똑같습니다.** 기능을 늘린 게 아니라 *같은 화면을 점점 나은 방법으로 다시 만든 것*이기 때문입니다. 세 파일을 나란히 열어놓고 비교하면 무엇이 나아졌는지가 보입니다.
+**과제 1 → 2 → 3은 화면**은 기능을 추가한 게 아니라 **같은 화면을 점점 나은 방법으로 다시 만들었습니다.** 
 
 ---
 
-## 0단계. 가장 먼저 넘어야 했던 벽 — SFC 구조
+## 0단계. SFC 구조
 
-처음 만든 파일은 컴파일조차 되지 않았습니다. 한 파일에 컴포넌트 두 개를 넣었기 때문입니다.
+처음 만든 파일은 한 파일에 컴포넌트 두 개를 넣었기 때문에 컴파일 되지 않았습니다.
 
 ```html
 <!-- ❌ 안 되는 코드 -->
@@ -61,7 +61,7 @@ src/
 
 [`practices/component/ParentComponent.vue`](src/components/practices/component/ParentComponent.vue), [`ChildComponent.vue`](src/components/practices/component/ChildComponent.vue)
 
-데이터는 **한 방향으로만** 흐릅니다.
+데이터는 **한 방향으로만** 이동합니다.
 
 ```text
 부모  ──[ props ]──▶  자식      값을 내려준다
@@ -147,8 +147,8 @@ Vue가 목록을 다시 그릴 때 "어느 항목이 그대로고 어느 게 새
 
 ### `v-model` 대신 `:value` + `@input`을 쓴 이유
 
-한글은 자음·모음을 조합해서 한 글자가 됩니다. `v-model`은 **조합이 끝나야** 값을 반영해서, "서울"을 칠 때 마지막 글자가 한 박자 늦게 나타납니다.
-`:value` + `@input`은 조합 중인 글자까지 즉시 반영합니다. 영어만 쓸 때는 차이가 없어서 놓치기 쉬운 부분입니다.
+한글은 자음·모음을 조합해서 한 글자가 됩니다. `v-model`은 **조합이 끝나야** 값을 반영해서, "서울"을 칠 때 마지막 글자가 비교적 늦게 나타납니다.
+`:value` + `@input`은 조합 중인 글자까지 즉시 반영합니다. 영어만 쓸 때는 차이가 없습니다.
 
 ### `.stop`이 없으면 생기는 일
 
@@ -173,7 +173,7 @@ const filteredWeatherList = computed(() => {
 })
 ```
 
-`searchQuery`가 바뀌면 이 값이 **자동으로** 다시 계산됩니다. 바뀌지 않았으면 이전 결과를 재사용해서 낭비도 없습니다.
+`searchQuery`가 바뀌면 이 값이 **자동으로** 다시 계산됩니다. 바뀌지 않았으면 이전 결과를 재사용합니다.
 
 ### watch vs watchEffect
 
@@ -192,7 +192,7 @@ watchEffect(() => { console.log(searchQuery.value) })      // 읽은 값을 알�
 
 **computed와의 구분:** 새로운 *값*을 만들면 `computed`, 값 변화에 반응해 *다른 일*(로그, API 호출 등)을 하면 `watch` 계열입니다.
 
-> 추가로 넣은 것: `showHotOnly` 체크박스와 `averageTemp` computed. computed를 두 번 써보려고 만들었습니다.
+> **With Claude** 추가로 넣은 것: `showHotOnly` 체크박스와 `averageTemp` computed. computed를 두 번 써볼 수 있습니다.
 
 ---
 
@@ -200,7 +200,6 @@ watchEffect(() => { console.log(searchQuery.value) })      // 읽은 값을 알�
 
 [`weather/component/WeatherParent.vue`](src/components/weather/component/WeatherParent.vue) + [`exercise/`](src/components/exercise/) 3개
 
-**기능은 하나도 안 바뀌었습니다.** 한 파일에 몰려 있던 것을 4개로 나눴을 뿐입니다.
 
 | 파일 | 역할 | props | emits |
 | --- | --- | --- | --- |
@@ -267,11 +266,11 @@ VSCode가 `.vue`를 폴더로 착각해 붙인 것입니다. 뒤의 `/index.js`�
 
 ---
 
-## 강의 범위를 넘어선 부분
+## 추가 구현
 
-과제 요구사항은 강의자료대로 구현했습니다. 자료에 없는 판단이 들어간 곳만 표시합니다.
+과제 요구사항은 강의자료대로 구현하였고, AI를 활용하여 자료에 없는 작업이 실행된 부분을 기록했습니다.
 
-### 요구사항이 자율에 맡긴 항목 (범위 안)
+### 요구사항
 
 | 항목 | 근거 | 위치 |
 | --- | --- | --- |
@@ -279,15 +278,10 @@ VSCode가 `.vue`를 폴더로 착각해 붙인 것입니다. 뒤의 `/index.js`�
 | `averageTemp` computed | 과제 2 요구사항 5 — 본인만의 Computed 추가 | [WeatherComposition.vue](src/components/weather/WeatherComposition.vue) |
 | 강릉·제주 데이터 추가 | 과제 1 요구사항 5 — 본인만의 데이터 추가 | [WeatherMockup.vue](src/components/weather/WeatherMockup.vue) |
 
-### 강의자료에 없는 판단
+### With Claude
 
 | 항목 | 이유 | 강의 범위로 낮춘다면 |
 | --- | --- | --- |
 | 탭 UI 로 과제 1~3 전환 | 한 화면에서 세 과제를 비교하려고 | 과제마다 App.vue 를 바꿔가며 확인 |
 | 프로젝트를 둘로 분리 | 과제 4에서 화면 전환 방식이 탭 → 라우터로 바뀜. 한 프로젝트에 두면 이전 방식이 사라짐 | 한 프로젝트에서 이어서 작업 |
 | `<style scoped>` 색·크기 조정 | 강의 스크린샷을 참고해 톤을 낮춤 (원색 대신 `#b4593f`·`#4c7397`) | 스크린샷 그대로의 원색 |
-
-### 정직하게 남기는 한계
-
-- **과제 1~3 의 날씨 데이터는 Mock 입니다.** 실제 API 연동은 과제 6에서 [`../vue-weather-dashboard`](../vue-weather-dashboard) 에 있습니다.
-- **온도 변환 코드가 과제 3에는 없습니다.** 단위 전환(섭씨/화씨)은 과제 5부터 도입되어 대시보드 프로젝트에만 있습니다.
