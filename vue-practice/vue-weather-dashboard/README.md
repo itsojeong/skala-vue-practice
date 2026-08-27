@@ -12,6 +12,8 @@ Vue Router를 적용해 **한 화면짜리 앱을 여러 페이지를 가진 앱
 | 이 문서 | `vue-practice/vue-weather-dashboard/README.md` |
 | 과제 1~3 문서 | [`../vue-weather-basic/README.md`](../vue-weather-basic/README.md) |
 
+> 트러블슈팅 기록은 **11절**, 강의 범위를 넘어선 부분의 표시는 **12절**에 있습니다.
+
 ```sh
 npm run dev   # http://localhost:5173
 ```
@@ -553,7 +555,7 @@ dist/assets/WeatherHomeView-BN7dSzVY.js    4.30 kB   ← 대시보드는 그대�
 npm run lint     # oxlint --fix 후 eslint --fix 를 차례로 실행
 ```
 
-두 프로젝트 모두 **0 error / 0 warning** 입니다.
+두 프로젝트 모두 **0 error / 0 warning** 입니다. 고칠 것이 나오지 않아, 정확히는 "에러를 없앴다" 가 아니라 **"에러가 없음을 확인했다"** 입니다. 코드를 쓰는 동안 매번 `npm run build` 로 검증하며 진행해서, 문법 오류와 잘못된 import 는 빌드 단계에서 이미 걸러졌습니다.
 
 ```text
 oxlint  : Found 0 warnings and 0 errors. (21 files, 89 rules)
@@ -896,3 +898,54 @@ WeatherHomeView-*.js    4.30 kB   ← 대시보드는 그대로
 **결과** — 과제 5에서 설정 없이 바로 스토어를 만들 수 있었음
 
 **배운 것** — **예제 파일과 설정 코드는 구분해서** 지워야 함
+
+---
+
+## 12. 강의 범위를 넘어선 부분
+
+과제 요구사항 자체는 강의자료대로 구현했습니다. 다만 **자료에 없는 기법**을 쓴 곳이 있어 따로 표시합니다.
+어디까지가 배운 것이고 어디부터가 추가인지 구분하기 위한 목록입니다.
+
+### 12-1. 요구사항이 자율에 맡긴 항목
+
+강의자료가 "본인만의 ○○을 추가한다"라고 열어둔 부분입니다. **범위 안**입니다.
+
+| 항목 | 근거 요구사항 | 구현 |
+| --- | --- | --- |
+| 통계 페이지 | 과제 4 요구사항 6 — 추가 view 작성 | [WeatherStatsView.vue](src/views/WeatherStatsView.vue) (`/stats`) |
+| 즐겨찾기 스토어 | 과제 5 요구사항 4 — 추가 Store | [favoriteStore.js](src/stores/favoriteStore.js) |
+| `unitLabel` getter · `setUnit` action | 과제 5 요구사항 4 — state·getter·action 추가 | [configStore.js](src/stores/configStore.js) |
+| 예보 · 대기오염 API | 과제 6 요구사항 2 — 제공 API 추가 | [openWeatherApi.js](src/api/openWeatherApi.js) |
+| Open-Meteo API | 과제 6 요구사항 3 — 기타 외부 API | [openMeteoApi.js](src/api/openMeteoApi.js) |
+
+### 12-2. 강의자료에 없는 기법 (초급 이상)
+
+**강의자료만 보고는 떠올리기 어려운 부분**입니다. 필요해서 넣었지만, 배운 범위 밖이라는 점을 명시합니다.
+
+| # | 항목 | 위치 | 왜 넣었나 | 강의 범위로 낮춘다면 |
+| --- | --- | --- | --- | --- |
+| 1 | axios **인터셉터** | [openWeatherApi.js](src/api/openWeatherApi.js) | 401·404·429·타임아웃 문구를 한 곳에서 처리 | 각 함수에서 `try/catch` 로 개별 처리 |
+| 2 | `Promise.all` / `allSettled` 구분 | [weatherStore.js](src/stores/weatherStore.js), [WeatherDetailView.vue](src/views/WeatherDetailView.vue) | 도시 5곳·API 4개를 동시 호출, 일부 실패 허용 | `for` 문으로 하나씩 `await` (느려짐) |
+| 3 | 로딩·에러·데이터 3분기 상태 | [weatherStore.js](src/stores/weatherStore.js) | 통신에는 "데이터가 없는 순간" 이 있음 | 로딩 표시 없이 빈 화면 |
+| 4 | 아이콘 URL 헬퍼 `getIconUrl` | [openWeatherApi.js](src/api/openWeatherApi.js) | 응답에 이미지 주소가 없어 코드로 조립해야 함 | 템플릿에 URL 문자열을 직접 이어붙이기 |
+| 5 | 좌표(lat/lon)로 조회 | [cityList.js](src/data/cityList.js) | 도시명은 한글/영문 표기 차이로 검색 실패 | `q=Seoul` 처럼 영문 도시명 사용 |
+| 6 | SPA 폴백 설정 | [vercel.json](vercel.json) | 배포 후 깊은 경로 새로고침이 404 (11-9 절) | — 대체 불가, 배포하면 반드시 필요 |
+| 7 | `.env.example` 파일 | [.env.example](.env.example) | 키 없이 형식만 공유해 협업 가능하게 | 없어도 동작에는 지장 없음 |
+| 8 | Element Plus 를 **페이지 안에서만** import | [UiPracticeView.vue](src/views/UiPracticeView.vue) | 전역 등록하면 기존 대시보드 디자인이 바뀜 | `main.js` 에서 `app.use(ElementPlus)` (일반적인 방식) |
+
+### 12-3. 구조에 대한 판단
+
+강의자료가 정해주지 않아 직접 결정한 부분입니다.
+
+| 결정 | 이유 |
+| --- | --- |
+| 프로젝트를 **둘로 분리** (`vue-weather-basic` / `vue-weather-dashboard`) | 과제 4에서 화면 전환 방식이 탭 → 라우터로 바뀌어, 한 프로젝트에 두면 이전 방식이 사라짐 |
+| 과제 1~3 은 탭(`v-if`), 과제 4~ 는 라우터 | 위와 같은 이유. 두 방식을 나란히 비교할 수 있게 |
+| `components/exercise/` 와 `components/practices/` 분리 | 강의자료 슬라이드의 폴더 트리를 따름 |
+| Mock 데이터 삭제 | 과제 6부터 값이 전부 API 에서 오므로 참조되지 않는 파일이 됨 |
+
+### 12-4. 정직하게 남기는 한계
+
+- **날씨 설명이 어색합니다** — "온흐림", "실 비" 는 OpenWeatherMap 의 한국어 번역입니다. `weather[0].id` 로 직접 라벨을 매핑하면 고칠 수 있지만 적용하지 않았습니다 (11-8 절).
+- **온도 변환 코드가 3곳에 중복** — 강의자료가 "Composable 로 해결 가능 (범위 제외)" 라고 명시한 부분이라 그대로 뒀습니다 (6-7 절).
+- **ESLint 는 고칠 것이 없었습니다** — 처음 실행부터 0 error 였습니다. "에러를 없앴다" 가 아니라 "에러가 없음을 확인했다" 가 정확합니다 (9-1 절).

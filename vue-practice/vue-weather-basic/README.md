@@ -264,3 +264,30 @@ slot           ─ 레이아웃 주입 (default → named → scoped)
 
 **IDE 자동 import가 만든 `.vue/index.js` 경로**
 VSCode가 `.vue`를 폴더로 착각해 붙인 것입니다. 뒤의 `/index.js`만 지우면 됩니다.
+
+---
+
+## 강의 범위를 넘어선 부분
+
+과제 요구사항은 강의자료대로 구현했습니다. 자료에 없는 판단이 들어간 곳만 표시합니다.
+
+### 요구사항이 자율에 맡긴 항목 (범위 안)
+
+| 항목 | 근거 | 위치 |
+| --- | --- | --- |
+| `showHotOnly` 체크박스 | 과제 2 요구사항 5 — 본인만의 반응형 상태 추가 | [WeatherComposition.vue](src/components/weather/WeatherComposition.vue) |
+| `averageTemp` computed | 과제 2 요구사항 5 — 본인만의 Computed 추가 | [WeatherComposition.vue](src/components/weather/WeatherComposition.vue) |
+| 강릉·제주 데이터 추가 | 과제 1 요구사항 5 — 본인만의 데이터 추가 | [WeatherMockup.vue](src/components/weather/WeatherMockup.vue) |
+
+### 강의자료에 없는 판단
+
+| 항목 | 이유 | 강의 범위로 낮춘다면 |
+| --- | --- | --- |
+| 탭 UI 로 과제 1~3 전환 | 한 화면에서 세 과제를 비교하려고 | 과제마다 App.vue 를 바꿔가며 확인 |
+| 프로젝트를 둘로 분리 | 과제 4에서 화면 전환 방식이 탭 → 라우터로 바뀜. 한 프로젝트에 두면 이전 방식이 사라짐 | 한 프로젝트에서 이어서 작업 |
+| `<style scoped>` 색·크기 조정 | 강의 스크린샷을 참고해 톤을 낮춤 (원색 대신 `#b4593f`·`#4c7397`) | 스크린샷 그대로의 원색 |
+
+### 정직하게 남기는 한계
+
+- **과제 1~3 의 날씨 데이터는 Mock 입니다.** 실제 API 연동은 과제 6에서 [`../vue-weather-dashboard`](../vue-weather-dashboard) 에 있습니다.
+- **온도 변환 코드가 과제 3에는 없습니다.** 단위 전환(섭씨/화씨)은 과제 5부터 도입되어 대시보드 프로젝트에만 있습니다.
