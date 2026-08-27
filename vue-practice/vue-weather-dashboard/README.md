@@ -1,4 +1,4 @@
-# vue-weather-dashboard — Hands on 과제 4~5: Weather Router & Store
+# vue-weather-dashboard — Hands on 과제 4~6: Router · Store · Axios
 
 Vue Router를 적용해 **한 화면짜리 앱을 여러 페이지를 가진 앱으로 바꾸는** 과제입니다.
 과제 1~3은 [`../vue-weather-basic`](../vue-weather-basic) 프로젝트에 있고, 이 폴더는 그 결과물 위에 라우터만 얹은 별도 프로젝트로 구분했습니다. 
@@ -11,8 +11,10 @@ npm run dev   # http://localhost:5173
 | --- | --- | --- | --- |
 | 4 | Weather Router | `vue-router` | 1~5절 |
 | 5 | Weather Store | `pinia` | 6절 |
+| 6 | Weather Axios | `axios` + OpenWeatherMap | 7절 |
+| — | UI 라이브러리 연습 | `element-plus` | 8절 |
 
-과제 5는 과제 4의 결과물을 **이어서 고친 것**이라 같은 프로젝트에 있습니다.
+과제 5·6은 과제 4의 결과물을 **이어서 고친 것**이라 같은 프로젝트에 있습니다.
 
 ---
 
@@ -36,11 +38,15 @@ src/
 ├── App.vue                      # 내비게이션 바 + RouterView(화면이 갈아끼워지는 자리)
 ├── router/
 │   └── index.js                 # 어떤 주소에 어떤 컴포넌트를 띄울지 정의
+├── api/                         # ★ 과제 6 — 외부 통신 담당
+│   ├── openWeatherApi.js        # axios 인스턴스 + OpenWeather API 3종
+│   └── openMeteoApi.js          # 키가 필요 없는 다른 외부 API
 ├── data/
-│   └── weatherMockData.js       # 목록·상세 화면이 함께 쓰는 임시 데이터
+│   └── cityList.js              # 조회할 도시 좌표 (값은 API 에서 온다)
 ├── stores/                      # ★ 과제 5 — 컴포넌트 바깥에 두는 공유 상태
 │   ├── configStore.js           # 날씨 단위 설정 (섭씨/화씨)
-│   └── favoriteStore.js         # 즐겨찾기한 도시 목록
+│   ├── favoriteStore.js         # 즐겨찾기한 도시 목록
+│   └── weatherStore.js          # ★ 과제 6 — API 응답 + 로딩·에러 상태
 ├── components/exercise/         # 재사용 부품 (과제 3에서 만든 것 그대로)
 │   ├── BaseDashboardCard.vue    # slot으로 내용을 받는 흰 패널 껍데기
 │   ├── SearchBar.vue            # props로 검색어 받고 emits로 입력 전달
@@ -51,6 +57,7 @@ src/
     ├── WeatherDetailView.vue    # /weather/:cityId  도시별 상세
     ├── WeatherAboutView.vue     # /about         서비스 소개
     ├── WeatherStatsView.vue     # /stats         직접 추가한 통계 페이지
+    ├── UiPracticeView.vue       # /ui            Element Plus 연습 (8절)
     └── NotFoundView.vue         # 그 외 모든 주소  404
 ```
 
@@ -342,7 +349,193 @@ isFavorite: (state) => (cityId) => state.favoriteIds.includes(cityId),
 
 ---
 
-## 7. 작업하면서 막혔던 것
+## 7. 과제 6: Weather Axios (실제 API 연동)
+
+### 7-1. 준비 — 라이브러리와 키
+
+```sh
+npm install axios
+```
+
+API 키는 코드에 직접 쓰지 않고 [`.env.local`](.env.local) 에 둡니다.
+
+```sh
+VITE_OPENWEATHER_API_KEY=발급받은_키
+```
+
+- Vite 는 **`VITE_` 로 시작하는 변수만** 앱 코드에 노출합니다. 이름을 바꾸면 못 읽습니다.
+- `.gitignore` 의 `*.local` 규칙에 걸려 **커밋되지 않습니다.** 키가 저장소에 올라가면 안 되기 때문입니다.
+- [`.env.example`](.env.example) 은 값 없이 형식만 담은 파일이라 커밋해도 안전합니다.
+- **값을 넣은 뒤에는 반드시 dev 서버를 다시 시작해야 합니다.** Vite 는 환경변수를 시작할 때 한 번만 읽습니다.
+
+### 7-2. axios 인스턴스 — 공통 설정을 한 곳에
+
+[`api/openWeatherApi.js`](src/api/openWeatherApi.js)
+
+```js
+const openWeather = axios.create({
+  baseURL: 'https://api.openweathermap.org/data/2.5',
+  timeout: 5000,
+  params: { appid: API_KEY, units: 'metric', lang: 'kr' },
+})
+```
+
+`axios.get(...)` 을 그대로 쓰면 호출마다 주소와 키를 반복해서 적어야 합니다. 인스턴스로 묶으면 각 함수는 **달라지는 부분만** 적습니다.
+
+```js
+openWeather.get('/weather', { params: { lat, lon } })
+```
+
+> `units: 'metric'` 을 쓰는 이유 — 응답을 섭씨로 받아야 과제 5에서 정한 "원본은 섭씨, 표시할 때만 변환" 규칙이 유지됩니다.
+
+### 7-3. 인터셉터 — 에러 문구를 한 곳에서
+
+```js
+openWeather.interceptors.response.use(
+  (response) => response,
+  (error) => { /* 401 · 404 · 429 · 타임아웃별 한글 문구로 변환 */ },
+)
+```
+
+이게 없으면 호출하는 모든 곳에서 상태 코드를 분기해야 합니다. 여기서 한 번 바꿔두면 화면은 `err.message` 만 보여주면 됩니다.
+
+### 7-4. 요구사항별 API
+
+| 요구사항 | API | 화면 |
+| --- | --- | --- |
+| 1. 실제 날씨 데이터 | OpenWeather `/weather` | 대시보드 카드, 상세 요약 |
+| 2. API 추가 | OpenWeather `/forecast` (5일/3시간) | 상세 "향후 24시간 예보" |
+| 2. API 추가 | OpenWeather `/air_pollution` | 상세 "대기질" (PM10·PM2.5) |
+| 3. 기타 외부 API | [Open-Meteo](https://open-meteo.com) `/forecast` | 상세 "오늘 시간대별 기온" 막대그래프 |
+
+**Open-Meteo 를 고른 이유** — API 키가 필요 없습니다. 그래서 OpenWeather 키를 넣기 전에도 외부 통신이 동작하는 것을 확인할 수 있습니다.
+
+### 7-5. 날씨 아이콘 이미지
+
+응답의 `weather[0].icon` 이 `'04d'` 같은 **코드**로 오고, 그 코드가 그대로 이미지 파일명이 됩니다. 이미지 URL 필드는 응답에 없어서 직접 조립합니다.
+
+```js
+export const getIconUrl = (icon, size = '@2x') =>
+  `https://openweathermap.org/img/wn/${icon}${size}.png`
+```
+
+| 부분 | 의미 |
+| --- | --- |
+| `04` | 날씨 종류 (01 맑음, 02~04 구름, 09·10 비, 11 뇌우, 13 눈, 50 안개) |
+| `d` / `n` | 낮 / 밤 — 같은 날씨라도 그림이 다름 |
+| `@2x` | 크기 (없으면 50px, `@2x` 100px, `@4x` 200px) |
+
+`<img>` 에 `width`·`height` 를 속성으로 박아두면 이미지가 늦게 도착해도 자리를 미리 잡아 화면이 덜컥거리지 않습니다.
+
+> `lang: 'kr'` 로 받은 설명은 "온흐림"(overcast clouds), "실 비"(light rain) 처럼 어색합니다. 응답에 함께 오는 `weather[0].id` (804, 500 …) 로 직접 라벨을 매핑하면 자연스럽게 바꿀 수 있습니다. 지금은 API 문구를 그대로 씁니다.
+
+### 7-6. 병렬 요청 — `Promise.all` vs `allSettled`
+
+| | 실패했을 때 | 쓴 곳 |
+| --- | --- | --- |
+| `Promise.all` | 하나라도 실패하면 전부 버림 | 대시보드 (도시 5개 현재 날씨) |
+| `Promise.allSettled` | 실패한 것만 빠지고 나머지는 살림 | 상세 페이지 (API 4개) |
+
+상세 페이지는 대기오염이 실패해도 현재 날씨는 보여주는 편이 낫기 때문에 `allSettled` 를 씁니다.
+
+### 7-7. 로딩과 에러 — 없던 상태가 생긴다
+
+지금까지는 데이터가 항상 거기 있었지만, 이제 **비어 있는 순간**이 생깁니다. [`weatherStore.js`](src/stores/weatherStore.js) 가 세 가지를 함께 들고 있습니다.
+
+```js
+state: () => ({ weatherList: [], loading: false, error: null })
+```
+
+```html
+<p v-if="weatherStore.loading">불러오는 중…</p>
+<div v-else-if="weatherStore.error"> … 다시 시도 버튼 … </div>
+<template v-else-if="filteredWeatherList.length > 0"> … 카드 … </template>
+```
+
+`finally` 에서 `loading = false` 를 하는 것도 같은 이유입니다. 실패했을 때 로딩 표시가 영영 안 사라지는 걸 막습니다.
+
+**정리한 것:** 값이 전부 API 에서 오므로 `weatherMockData.js` 는 삭제하고, 조회할 좌표만 [`cityList.js`](src/data/cityList.js) 에 남겼습니다. 도시명 대신 좌표를 쓰면 한글/영문 표기 차이로 검색이 실패할 일이 없습니다.
+
+---
+
+## 8. UI 라이브러리 연습 (Element Plus)
+
+```sh
+npm install element-plus
+```
+
+`/ui` 경로의 [`UiPracticeView.vue`](src/views/UiPracticeView.vue) 한 페이지에서만 씁니다.
+
+### 8-1. 왜 UI 라이브러리를 쓰나
+
+지금까지는 버튼·입력창·카드를 **직접 CSS 로** 만들었습니다. 색·크기·둥근 모서리를 매번 정하고, 호버 상태까지 따로 적었습니다.
+
+UI 라이브러리는 이걸 **속성 하나로** 끝냅니다.
+
+```html
+<ElButton type="danger" size="small" round>삭제</ElButton>
+```
+
+CSS 를 한 줄도 쓰지 않고 색·크기·모양이 정해집니다. 대신 **그 라이브러리가 정한 디자인을 따라야** 합니다.
+
+### 8-2. 전역 등록 대신 페이지 안에서만 import
+
+교재나 공식 문서는 보통 `main.js` 에서 전역 등록합니다.
+
+```js
+// 흔한 방식 — 앱 전체에 적용된다
+app.use(ElementPlus)
+```
+
+이 프로젝트는 대시보드의 기존 디자인을 지켜야 해서, **연습 페이지 안에서만** 가져다 씁니다.
+
+```js
+import { ElButton, ElInput, ElTable /* … */ } from 'element-plus'
+import 'element-plus/dist/index.css'
+```
+
+`npm run build` 결과로 확인됩니다.
+
+```text
+dist/assets/UiPracticeView-Cd2ntamY.js   365.59 kB   ← Element Plus 가 여기에만
+dist/assets/WeatherHomeView-BN7dSzVY.js    4.30 kB   ← 대시보드는 그대로
+```
+
+라우터 지연 로딩과 맞물려, `/ui` 에 들어가지 않으면 365 kB 는 아예 내려받지 않습니다.
+
+### 8-3. 만든 것 (초급자 수준의 기본 기능)
+
+| 절 | 컴포넌트 | 배우는 것 |
+| --- | --- | --- |
+| 1 | `el-button` | 속성으로 모양 정하기 (`type`·`size`·`plain`·`round`·`disabled`) |
+| 2 | `el-input`·`el-select`·`el-switch`·`el-slider`·`el-rate` | 전부 `v-model` 로 값 연결 |
+| 3 | `ElMessage`·`ElMessageBox` | 태그가 아니라 **함수로 부르는** 컴포넌트 |
+| 4 | `el-dialog` | 열림 상태를 `v-model` 로 관리, 버튼은 `#footer` slot |
+| 5 | `el-table` | 데이터 배열만 넘기면 표가 그려짐, 셀은 scoped slot |
+| 6 | `el-form` | 검증 규칙을 **선언**하면 검사·에러 문구를 라이브러리가 처리 |
+| 7 | `el-tabs` | 과제 1~3 에서 직접 만든 탭 전환이 태그 몇 줄로 |
+
+### 8-4. 배운 문법이 그대로 쓰이는 지점
+
+라이브러리라고 새로운 문법이 나오는 게 아닙니다. 앞 과제에서 배운 것이 그대로 보입니다.
+
+- **v-model** — `<ElInput v-model="text" />`. 우리가 `props` + `emits` 로 만들던 양방향 연결을 라이브러리가 대신 합니다.
+- **이름있는 slot** — 다이얼로그의 `#footer`, 카드의 `#header`. 과제 3의 Named Slot 그대로입니다.
+- **Scoped Slot** — 테이블 셀의 `#default="scope"`. 자식(테이블)이 행 데이터를 `scope` 에 담아 주고 모양은 우리가 정합니다. 과제 3에서 이해한 그 구조입니다.
+
+### 8-5. 확인해보기
+
+| 해볼 것 | 기대 결과 |
+| --- | --- |
+| `/ui` 진입 | 7개 섹션이 Element Plus 디자인으로 표시 |
+| "삭제 확인창" 클릭 후 취소 | "취소했습니다" — Promise 의 `.catch` 분기 |
+| 폼을 비운 채 등록 | 필드마다 빨간 에러 문구가 자동 표시 |
+| 대시보드로 돌아가기 | 기존 디자인이 그대로 (라이브러리 영향 없음) |
+| DevTools Network 탭에서 `/ui` 진입 | 그 순간 큰 청크를 내려받음 (지연 로딩) |
+
+---
+
+## 9. 작업하면서 막혔던 것
 
 **`#app`이 2열로 갈라짐**
 내비게이션이 왼쪽, 화면이 오른쪽에 나오는 문제가 있었습니다. 원인은 내 코드가 아니라 Vue 프로젝트 생성 시 딸려온 [`assets/main.css`](src/assets/main.css)의 기본 스타일이었습니다.

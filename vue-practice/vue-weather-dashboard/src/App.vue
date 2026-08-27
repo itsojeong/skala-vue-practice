@@ -10,6 +10,7 @@ import UnitToggler from '@/components/exercise/UnitToggler.vue'
     <RouterLink to="/">대시보드</RouterLink>
     <RouterLink to="/stats">통계</RouterLink>
     <RouterLink to="/about">소개</RouterLink>
+    <RouterLink to="/ui">UI 연습</RouterLink>
 
     <!-- 내비게이션 바 옆에 단위 설정 영역 배치 -->
     <UnitToggler class="nav-unit" />

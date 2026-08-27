@@ -28,6 +28,13 @@ const router = createRouter({
       component: () => import('@/views/WeatherStatsView.vue'),
     },
 
+    {
+      // UI 라이브러리(Element Plus) 연습 페이지
+      path: '/ui',
+      name: 'ui-practice',
+      component: () => import('@/views/UiPracticeView.vue'),
+    },
+
     // --- Catch-all Route: 위 어디에도 걸리지 않은 경로 (항상 맨 마지막) ---
     {
       path: '/:pathMatch(.*)*',
