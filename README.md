@@ -12,6 +12,45 @@ vue.js 수업을 통해 진행한 Code Challenge와 Hands-on 과제를 순서대
 | 과제 1~3 문서 | [vue-practice/vue-weather-basic/README.md](vue-practice/vue-weather-basic/README.md) |
 | 과제 4~7 문서 | [vue-practice/vue-weather-dashboard/README.md](vue-practice/vue-weather-dashboard/README.md) |
 
+## 직접 추가한 부분
+
+과제 요구사항에는 없지만 스스로 정하고 만든 것들입니다.
+
+### 📊 통계 페이지 (`/stats`)
+
+> 과제 4 요구사항 6 — "본인의 추가 view 를 작성하고 Routing 한다"
+
+날씨 목록을 보여주는 것에서 그치지 않고, **모아둔 데이터를 다시 계산해서 보여주는 화면**을 만들었습니다.
+[WeatherStatsView.vue](vue-practice/vue-weather-dashboard/src/views/WeatherStatsView.vue)
+
+| 보여주는 것 | 계산 방법 |
+| --- | --- |
+| 평균 기온 | `reduce` 로 합계 → 도시 수로 나눔 (소수 첫째 자리 반올림) |
+| 최고 / 최저 기온 | `reduce` 로 도시 **객체**를 찾아 기온과 도시명을 함께 표시 |
+| 날씨 상태별 도시 수 | `reduce` 로 `{ 맑음: 2, 비: 1 }` 형태로 집계 후 막대그래프 |
+
+**이 화면에서 신경 쓴 점**
+
+- **집계 로직 4개를 전부 `computed` 로** — 원본 데이터가 바뀌면 통계도 자동으로 다시 계산됩니다
+- **차트 라이브러리 없이 막대그래프** — 최댓값 대비 비율을 계산해 CSS `width` 로 바인딩했습니다
+- **API 중복 호출 방지** — 대시보드에서 이미 받아왔으면 다시 부르지 않습니다 (Pinia 스토어 공유)
+- **단위 설정 연동** — 상단에서 화씨로 바꾸면 통계 숫자도 함께 바뀝니다
+- **빈 데이터 방어** — 목록이 비었을 때 `Math.max(...[])` 가 `-Infinity` 를 반환하는 문제를 막았습니다
+
+즉 통계 페이지는 **앞의 과제에서 배운 것들이 한 화면에 모이는 지점**입니다.
+과제 2의 `computed`, 과제 4의 라우팅, 과제 5의 스토어 공유, 과제 6의 API 연동이 함께 쓰입니다.
+
+### 그 밖에 추가한 것
+
+| 항목 | 내용 |
+| --- | --- |
+| ⭐ 즐겨찾기 | 별도 Pinia 스토어. 대시보드에서 별을 누르면 상세 페이지에도 유지됩니다 |
+| 🌡️ 섭씨/화씨 전환 | 원본은 섭씨로 두고 **표시할 때만 변환** — 여러 번 오가도 값이 어긋나지 않습니다 |
+| 📈 시간대별 기온 그래프 | OpenWeatherMap 외에 Open-Meteo API 를 추가로 연동 (키 불필요) |
+| 🧩 UI 연습 페이지 (`/ui`) | Element Plus 기본 컴포넌트 모음. 기존 화면에 영향이 없도록 그 페이지 안에서만 로드합니다 |
+
+각 항목을 왜 그렇게 만들었는지는 [과제 4~7 문서](vue-practice/vue-weather-dashboard/README.md)의 **12절 "강의 범위를 넘어선 부분"** 에 정리했습니다.
+
 ## 문서 분리 기준
 
 Hands on 과제를 **Vue Router 적용 시점**을 기준으로 두 프로젝트로 나눴습니다.
